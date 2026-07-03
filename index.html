@@ -1,0 +1,1787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hospi</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1A2E4A;--cream:#FAF7F2;--coral:#E86845;--coral2:#C9502E;
+  --slate:#64748B;--slate2:#94A3B8;--green:#2D7D5A;--amber:#C97D1A;
+  --white:#fff;--border:#E8E2D8;--bg:#F4F0EA;
+  --shadow:0 2px 12px rgba(26,46,74,.08);--shadow-lg:0 8px 32px rgba(26,46,74,.16);
+}
+html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:var(--navy);overflow:hidden}
+.navbar{height:52px;background:var(--navy);display:flex;align-items:center;padding:0 18px;flex-shrink:0;z-index:50}
+.nav-brand{display:flex;align-items:center;gap:9px;margin-right:28px;flex-shrink:0}
+.nav-logo{width:28px;height:28px;border-radius:7px;background:var(--coral);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;color:#fff;font-size:14px}
+.nav-title{font-family:'Playfair Display',serif;font-weight:700;font-size:16px;color:#fff}
+.nav-tabs{display:flex;gap:2px;flex:1}
+.nav-tab{padding:6px 14px;border-radius:7px;border:none;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;font-size:12px;color:rgba(255,255,255,.5);transition:all .15s;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.nav-tab:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.85)}
+.nav-tab.active{background:rgba(232,104,69,.25);color:#fff}
+.app{display:flex;flex-direction:column;height:100vh}
+.view-area{flex:1;display:flex;overflow:hidden}
+.sidebar{width:264px;min-width:264px;background:var(--navy);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.sidebar-inner{padding:12px 8px 8px}
+.btn-new{width:100%;padding:9px;border-radius:8px;background:var(--coral);border:none;cursor:pointer;color:#fff;font-family:'Inter',sans-serif;font-weight:600;font-size:12px;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s}
+.btn-new:hover{background:var(--coral2)}
+.sec-head{padding:10px 12px 4px;font-size:10px;font-weight:600;color:rgba(255,255,255,.3);letter-spacing:.12em;text-transform:uppercase}
+.trip-list{flex:1;overflow-y:auto;padding:4px 8px 12px}
+.trip-list::-webkit-scrollbar{width:3px}.trip-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+.trip-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;cursor:pointer;transition:background .15s;margin-bottom:2px;border:1px solid transparent}
+.trip-item:hover{background:rgba(255,255,255,.05)}
+.trip-item.active{background:rgba(232,104,69,.18);border-color:rgba(232,104,69,.28)}
+.trip-av{width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;font-size:12px;color:#fff}
+.trip-info{flex:1;min-width:0}
+.trip-name{font-size:12px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trip-meta{font-size:10px;color:rgba(255,255,255,.38);margin-top:1px}
+.trip-badge{font-size:10px;font-weight:600;padding:2px 6px;border-radius:8px;flex-shrink:0}
+.trip-badge.upcoming{background:rgba(45,125,90,.3);color:#6DD5AA}
+.trip-badge.active-now{background:rgba(232,104,69,.3);color:#F4A07A}
+.trip-badge.past{background:rgba(255,255,255,.08);color:rgba(255,255,255,.3)}
+.main-pane{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 22px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-title{font-family:'Playfair Display',serif;font-weight:700;font-size:17px}
+.topbar-sub{font-size:11px;color:var(--slate)}
+.topbar-r{display:flex;align-items:center;gap:6px}
+.status-pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;display:flex;align-items:center;gap:4px}
+.status-pill.upcoming{background:#DCFCE7;color:#166534}
+.status-pill.active-now{background:#FEF3C7;color:#92400E}
+.status-pill.past{background:#F1F5F9;color:var(--slate)}
+.dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+.scroll-area{flex:1;overflow-y:auto;padding:18px 22px}
+.scroll-area::-webkit-scrollbar{width:5px}.scroll-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.fw-view{flex:1;overflow-y:auto;padding:22px 28px;min-height:0}
+.fw-view::-webkit-scrollbar{width:5px}.fw-view::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.db-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.db-title{font-family:'Playfair Display',serif;font-weight:700;font-size:22px}
+.db-sub{font-size:12px;color:var(--slate);margin-top:2px}
+.stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.stat-card{background:var(--white);border-radius:12px;padding:14px 16px;border:1px solid var(--border);box-shadow:var(--shadow)}
+.stat-num{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--navy)}
+.stat-lbl{font-size:11px;color:var(--slate);margin-top:1px}
+.table-wrap{background:var(--white);border-radius:12px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow)}
+.db-table{width:100%;border-collapse:collapse}
+.db-table th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--slate);background:var(--cream);border-bottom:1px solid var(--border)}
+.db-table td{padding:11px 14px;font-size:12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.db-table tr:last-child td{border-bottom:none}
+.db-table tr:hover td{background:rgba(250,247,242,.6)}
+.db-name{font-weight:600;font-size:13px}
+.db-sub2{font-size:11px;color:var(--slate);margin-top:1px}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.tag.dietary{background:#DCFCE7;color:#166534}
+.tag.none{background:#F1F5F9;color:var(--slate2)}
+.tag.navy{background:rgba(26,46,74,.1);color:var(--navy)}
+.stat-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:7px;font-size:11px;font-weight:600;background:var(--cream);color:var(--navy)}
+.row-acts{display:flex;gap:4px;opacity:0;transition:opacity .15s}
+.db-table tr:hover .row-acts{opacity:1}
+.ract{padding:4px 9px;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:11px;font-weight:500;color:var(--slate);transition:all .15s;font-family:'Inter',sans-serif}
+.ract:hover{border-color:var(--navy);color:var(--navy);background:var(--cream)}
+.ract.del:hover{border-color:#FEE2E2;color:#991B1B;background:#FEF2F2}
+.guest-card{background:var(--navy);border-radius:14px;margin-bottom:16px;overflow:hidden}
+.gc-head{padding:18px 22px;display:flex;align-items:flex-start;gap:14px;position:relative}
+.gc-bg{position:absolute;inset:0;opacity:.04;background:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:14px 14px;pointer-events:none}
+.gc-av{width:48px;height:48px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;font-size:16px;color:#fff;border:2px solid rgba(255,255,255,.2);position:relative;z-index:1}
+.gc-meta{flex:1;position:relative;z-index:1}
+.gc-name{font-family:'Playfair Display',serif;font-weight:700;font-size:20px;color:#fff;line-height:1.1}
+.gc-role{font-size:11px;color:rgba(255,255,255,.5);margin-top:3px;font-style:italic}
+.gc-pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.gpill{font-size:10px;font-weight:500;padding:2px 8px;border-radius:16px}
+.gpill.dietary{background:rgba(45,125,90,.35);color:#7FD9A8}
+.gpill.nat{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)}
+.gpill.spouse{background:rgba(201,125,26,.35);color:#F4C56A}
+.gpill.comp{background:rgba(124,58,237,.35);color:#C4B5FD}
+.gpill.nights{background:rgba(255,255,255,.08);color:rgba(255,255,255,.45)}
+.gc-edit{position:absolute;top:14px;right:18px;z-index:2;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:4px 10px;font-size:11px;color:rgba(255,255,255,.65);cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:all .15s}
+.gc-edit:hover{background:rgba(255,255,255,.2);color:#fff}
+.gc-panels{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid rgba(255,255,255,.08)}
+.gc-panel{padding:12px 18px;border-right:1px solid rgba(255,255,255,.08)}
+.gc-panel:last-child{border-right:none}
+.gc-plabel{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:8px}
+.f-row{display:flex;align-items:flex-start;gap:7px;margin-bottom:7px}
+.f-row:last-child{margin-bottom:0}
+.f-dir{font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;flex-shrink:0;margin-top:1px}
+.f-dir.arr{background:rgba(45,125,90,.4);color:#7FD9A8}
+.f-dir.dep{background:rgba(232,104,69,.4);color:#F4A07A}
+.f-num{font-size:12px;font-weight:700;color:#fff}
+.f-detail{font-size:10px;color:rgba(255,255,255,.45);margin-top:1px}
+.f-time{font-size:11px;font-weight:600;color:rgba(255,255,255,.75);text-align:right;flex-shrink:0;padding-top:1px}
+.h-name{font-size:13px;font-weight:700;color:#fff}
+.h-room{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px}
+.h-dates{margin-top:7px}
+.h-dr{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.h-dr:last-child{border-bottom:none}
+.h-dl{font-size:9px;color:rgba(255,255,255,.35)}
+.h-dv{font-size:10px;font-weight:600;color:rgba(255,255,255,.7)}
+.gc-empty{font-size:11px;color:rgba(255,255,255,.22);font-style:italic}
+.gc-companions{border-top:1px solid rgba(255,255,255,.08);padding:10px 18px;display:flex;gap:16px;flex-wrap:wrap}
+.comp-item{display:flex;align-items:center;gap:7px}
+.comp-av{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:rgba(255,255,255,.65)}
+.comp-name{font-size:11px;font-weight:600;color:rgba(255,255,255,.75)}
+.comp-sub{font-size:10px;color:rgba(255,255,255,.35)}
+.days-grid{display:flex;flex-direction:column;gap:12px}
+.day-card{background:var(--white);border-radius:12px;border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden}
+.day-ch{display:flex;align-items:center;cursor:pointer;user-select:none;border-bottom:1px solid transparent}
+.day-ch.open{border-bottom-color:var(--border)}
+.stamp{width:70px;flex-shrink:0;padding:10px 6px;border-right:1px dashed var(--border);text-align:center;position:relative}
+.stamp-d{font-family:'Playfair Display',serif;font-weight:700;font-size:24px;color:var(--navy);line-height:1}
+.stamp-m{font-size:9px;font-weight:700;color:var(--coral);letter-spacing:.06em;text-transform:uppercase;margin-top:1px}
+.stamp-w{font-size:9px;color:var(--slate2)}
+.stamp-n{position:absolute;top:6px;right:5px;width:14px;height:14px;border-radius:50%;border:1.5px solid var(--coral);font-size:8px;font-weight:700;color:var(--coral);display:flex;align-items:center;justify-content:center}
+.day-hinfo{flex:1;padding:10px 13px}
+.day-htitle{font-weight:600;font-size:12px}
+.day-chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.dchip{font-size:10px;font-weight:500;padding:2px 7px;border-radius:5px}
+.dchip.host{background:#EFF6FF;color:#1E40AF}
+.dchip.driver{background:#FFF7ED;color:#9A3412}
+.day-cnt{font-size:10px;color:var(--slate2);margin-top:3px}
+.day-tog{padding:10px 13px;color:var(--slate2);font-size:12px;transition:transform .2s;flex-shrink:0}
+.day-tog.open{transform:rotate(90deg)}
+.day-body{padding:0 13px 13px 83px}
+.day-body.collapsed{display:none}
+.hd-row{display:flex;gap:7px;margin-top:10px}
+.hd-card{flex:1;padding:8px 10px;border-radius:7px;border:1px solid var(--border);background:var(--cream);display:flex;align-items:center;gap:6px;cursor:pointer;transition:border-color .15s}
+.hd-card:hover{border-color:var(--slate2)}
+.hd-l{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--slate2)}
+.hd-n{font-size:11px;font-weight:600;color:var(--navy)}
+.hd-n.empty{color:var(--slate2);font-weight:400;font-style:italic}
+.hd-c{font-size:10px;color:var(--slate)}
+.sg{margin-top:10px}
+.sg-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--slate2);margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.sg-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+.irow{display:flex;align-items:flex-start;gap:7px;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--cream);margin-bottom:4px;transition:border-color .15s}
+.irow:hover{border-color:var(--slate2)}
+.itime{font-size:10px;font-weight:600;color:var(--slate);min-width:34px;flex-shrink:0;padding-top:1px}
+.ibody{flex:1}
+.ititle{font-size:12px;font-weight:500}
+.iloc{font-size:10px;color:var(--slate);margin-top:1px}
+.inote{font-size:10px;color:var(--slate2);margin-top:1px;font-style:italic}
+.s-badge{font-size:10px;font-weight:600;padding:2px 6px;border-radius:5px}
+.s-badge.confirmed{background:#DCFCE7;color:#166534}
+.s-badge.pending{background:#FEF9C3;color:#713F12}
+.s-badge.cancelled{background:#FEE2E2;color:#991B1B}
+.s-badge.tbd{background:#F1F5F9;color:var(--slate)}
+.iacts{display:flex;gap:2px;opacity:0;transition:opacity .15s;flex-shrink:0}
+.irow:hover .iacts{opacity:1}
+.ibtn{width:20px;height:20px;border-radius:4px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;background:transparent;color:var(--slate);transition:all .15s}
+.ibtn:hover{background:var(--border)}
+.ibtn.del:hover{background:#FEE2E2;color:#991B1B}
+.add-btn{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:var(--slate);padding:5px 8px;border-radius:6px;border:1px dashed var(--border);background:transparent;cursor:pointer;transition:all .15s;width:100%;margin-top:3px;font-family:'Inter',sans-serif}
+.add-btn:hover{border-color:var(--coral);color:var(--coral);background:rgba(232,104,69,.04)}
+.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 40px;color:var(--slate)}
+.e-icon{font-size:44px;margin-bottom:14px;opacity:.4}
+.e-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--navy);margin-bottom:7px}
+.e-sub{font-size:13px;color:var(--slate);max-width:280px;line-height:1.6}
+.cal-wrap{display:flex;flex-direction:column;height:100%;overflow:hidden}
+.cal-toolbar{display:flex;align-items:center;justify-content:space-between;padding:14px 22px 10px;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0}
+.cal-nav{display:flex;align-items:center;gap:8px}
+.cal-nav-btn{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.cal-nav-btn:hover{border-color:var(--navy);background:var(--cream)}
+.cal-nav-today{padding:5px 12px;border-radius:7px;border:1px solid var(--border);background:#fff;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;font-size:12px;color:var(--navy);transition:all .15s}
+.cal-nav-today:hover{border-color:var(--navy)}
+.cal-period{font-family:'Playfair Display',serif;font-weight:600;font-size:17px;min-width:200px;text-align:center}
+.cal-views{display:flex;gap:2px;background:var(--cream);border-radius:8px;padding:3px}
+.cal-vbtn{padding:5px 12px;border-radius:6px;border:none;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;font-size:12px;color:var(--slate);transition:all .15s}
+.cal-vbtn.active{background:#fff;color:var(--navy);box-shadow:0 1px 4px rgba(26,46,74,.1)}
+.cal-month-outer{flex:1;overflow-y:auto;background:var(--white)}
+.cal-month-outer::-webkit-scrollbar{width:5px}.cal-month-outer::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.cal-dow-header{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:2px solid var(--border);background:var(--white);position:sticky;top:0;z-index:2}
+.cal-dow{padding:9px 10px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--slate);text-align:center}
+.cal-week-row{display:grid;grid-template-columns:repeat(7,1fr);position:relative;border-bottom:1px solid var(--border)}
+.cal-mcell{border-right:1px solid var(--border);min-height:120px;padding:4px 5px 6px;cursor:default;transition:background .1s;background:var(--white);overflow:hidden}
+.cal-mcell:last-child{border-right:none}
+.cal-mcell:hover{background:#FAFAFA}
+.cal-mcell.cal-other{background:#F9F7F4}
+.cal-mcell.cal-today{background:#FFF8F6}
+.cal-mcell-num{font-size:12px;font-weight:600;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:50%;color:var(--navy);cursor:pointer;transition:background .1s;margin-bottom:2px;flex-shrink:0}
+.cal-mcell-num:hover{background:var(--cream)}
+.cal-mcell.cal-other .cal-mcell-num{color:var(--slate2)}
+.cal-today-num{background:var(--coral)!important;color:#fff!important}
+.cal-span-layer{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none}
+.cal-span-bar{position:absolute;height:20px;color:#fff;font-size:11px;font-weight:500;padding:1px 7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;pointer-events:all;display:flex;align-items:center;gap:4px}
+.cal-span-bar:hover{filter:brightness(1.1)}
+.cal-timed-pill{font-size:10px;font-weight:500;padding:1px 6px;border-radius:3px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;display:flex;align-items:center;gap:3px;margin-bottom:2px}
+.cal-timed-pill:hover{opacity:.85}
+.cal-timed-time{font-weight:700;opacity:.85;flex-shrink:0}
+.cal-more-lbl{font-size:10px;color:var(--slate);font-weight:500;padding:1px 3px;cursor:pointer;border-radius:3px}
+.cal-more-lbl:hover{background:var(--cream);color:var(--coral)}
+.cal-week-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.cal-week-head{display:flex;border-bottom:1px solid var(--border);background:var(--white);flex-shrink:0}
+.cal-wh-spacer{width:52px;flex-shrink:0;border-right:1px solid var(--border)}
+.cal-wh-day{flex:1;padding:8px 6px;text-align:center;border-left:1px solid var(--border)}
+.cal-wh-dow{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--slate)}
+.cal-wh-num{font-size:20px;font-weight:700;color:var(--navy);font-family:'Playfair Display',serif;line-height:1.1}
+.cal-wh-num.today-num{background:var(--coral);color:#fff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:2px auto 0;font-size:16px}
+.cal-week-body{flex:1;overflow-y:auto;display:flex}
+.cal-week-body::-webkit-scrollbar{width:5px}.cal-week-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.cal-time-col{width:52px;flex-shrink:0;border-right:1px solid var(--border)}
+.cal-day-cols{flex:1;display:grid;position:relative}
+.cal-day-col{border-left:1px solid var(--border);position:relative}
+.cal-time-lbl{height:54px;display:flex;align-items:flex-start;padding:3px 6px 0 4px;font-size:9px;color:var(--slate2)}
+.cal-hour-line{position:absolute;left:0;right:0;border-top:1px solid var(--border)}
+.cal-hr-half{position:absolute;left:0;right:0;border-top:1px dashed rgba(232,226,216,.6)}
+.cal-wevt{position:absolute;left:2px;right:2px;border-radius:5px;padding:2px 5px;font-size:10px;font-weight:500;color:#fff;overflow:hidden;cursor:pointer;min-height:20px;line-height:1.3;transition:opacity .1s}
+.cal-wevt:hover{opacity:.85}
+.md-xl{max-width:720px}
+.gdb-section-title{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:12px}
+.gdb-photo-wrap{border-radius:10px;border:2px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:var(--cream);transition:border-color .15s;position:relative}
+.gdb-photo-wrap:hover{border-color:var(--coral)}
+.gdb-photo-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.gdb-photo-lbl{font-size:9px;color:var(--slate2);text-align:center;line-height:1.5;margin-top:4px}
+.diet-block{background:#fff;border-radius:9px;border:1px solid var(--border);padding:14px 16px;margin-bottom:10px}
+.diet-block:last-child{margin-bottom:0}
+.diet-who{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.diet-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px;letter-spacing:.06em;text-transform:uppercase}
+.diet-badge.guest-b{background:var(--navy);color:#fff}
+.diet-badge.spouse-b{background:var(--amber);color:#fff}
+.diet-who-name{font-size:13px;font-weight:600;color:var(--navy)}
+.for-srv{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;background:var(--coral);color:#fff;letter-spacing:.05em;margin-left:6px}
+.srv-input{border-color:var(--coral)!important;border-width:1.5px!important}
+.btn-primary{padding:9px 18px;border-radius:8px;border:none;background:var(--coral);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:12px;color:#fff;transition:background .15s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary:hover{background:var(--coral2)}
+.btn-outline{padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;font-size:12px;color:var(--navy);transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn-outline:hover{border-color:var(--navy);background:var(--cream)}
+.mo{position:fixed;inset:0;background:rgba(26,46,74,.5);backdrop-filter:blur(2px);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .18s}
+.mo.open{opacity:1;pointer-events:all}
+.md{background:#fff;border-radius:16px;width:100%;max-width:500px;box-shadow:var(--shadow-lg);max-height:92vh;overflow-y:auto;transform:translateY(8px);transition:transform .18s}
+.mo.open .md{transform:translateY(0)}
+.md-lg{max-width:660px}
+.mh{padding:18px 20px 0;display:flex;align-items:flex-start;justify-content:space-between}
+.mt2{font-family:'Playfair Display',serif;font-weight:700;font-size:17px}
+.ms2{font-size:11px;color:var(--slate);margin-top:2px}
+.mx{width:26px;height:26px;border-radius:7px;border:none;background:var(--cream);cursor:pointer;font-size:14px;color:var(--slate);transition:all .15s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mx:hover{background:var(--border);color:var(--navy)}
+.mb2{padding:14px 20px 20px;display:flex;flex-direction:column;gap:11px}
+.mf{padding:0 20px 18px;display:flex;gap:7px;justify-content:flex-end;align-items:center}
+.msec{background:var(--cream);border-radius:9px;padding:11px 13px}
+.msec-t{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--slate);margin-bottom:9px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.fg.c3{grid-template-columns:1fr 1fr 1fr}
+.fg.c1{grid-template-columns:1fr}
+.fld{display:flex;flex-direction:column;gap:3px}
+.fld.s2{grid-column:span 2}
+.fld label{font-size:11px;font-weight:600;color:var(--navy)}
+.fld input,.fld select,.fld textarea{padding:7px 9px;border-radius:7px;border:1px solid var(--border);font-family:'Inter',sans-serif;font-size:12px;color:var(--navy);background:#fff;outline:none;transition:border-color .15s}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--navy)}
+.fld textarea{resize:vertical;min-height:52px}
+.tgl-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0}
+.tgl{position:relative;width:38px;height:21px;cursor:pointer}
+.tgl input{opacity:0;width:0;height:0}
+.tgl-s{position:absolute;inset:0;border-radius:21px;background:var(--border);transition:background .2s}
+.tgl input:checked+.tgl-s{background:var(--coral)}
+.tgl-s::after{content:'';position:absolute;width:17px;height:17px;border-radius:50%;background:#fff;top:2px;left:2px;transition:transform .2s}
+.tgl input:checked+.tgl-s::after{transform:translateX(17px)}
+.cswatch{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;flex-shrink:0}
+.cswatch.sel{border-color:var(--navy);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--navy)}
+.color-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:4px}
+.btn-save{padding:8px 17px;border-radius:8px;border:none;background:var(--coral);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:12px;color:#fff;transition:background .15s}
+.btn-save:hover{background:var(--coral2)}
+.btn-can{padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;font-size:12px;color:var(--slate);transition:all .15s}
+.btn-can:hover{border-color:var(--navy);color:var(--navy)}
+.btn-del{padding:8px 14px;border-radius:8px;border:1px solid #FEE2E2;background:#fff;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;font-size:12px;color:#991B1B;margin-right:auto;transition:all .15s}
+.btn-del:hover{background:#FEE2E2}
+.btn-add-sm{padding:5px 11px;border-radius:6px;border:1px dashed var(--border);background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;font-size:11px;color:var(--slate);transition:all .15s;display:inline-flex;align-items:center;gap:4px}
+.btn-add-sm:hover{border-color:var(--coral);color:var(--coral)}
+@media(max-width:680px){.sidebar{width:200px;min-width:200px}.gc-panels{grid-template-columns:1fr}.gc-panel:not(:last-child){border-right:none;border-bottom:1px solid rgba(255,255,255,.08)}.stat-cards{grid-template-columns:1fr 1fr}.fg{grid-template-columns:1fr}.fld.s2{grid-column:span 1}.fg.c3{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.sidebar{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="nav-logo">H</div>
+    <div class="nav-title">Hospi</div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab" id="nt-trips"     onclick="setView('trips')">✈️ Trips</button>
+    <button class="nav-tab" id="nt-guests"    onclick="setView('guests')">👤 Guests</button>
+    <button class="nav-tab" id="nt-hosts"     onclick="setView('hosts')">🧑‍💼 Hosts</button>
+    <button class="nav-tab" id="nt-drivers"   onclick="setView('drivers')">🚗 Drivers</button>
+    <button class="nav-tab" id="nt-hotels"    onclick="setView('hotels')">🏨 Hotels</button>
+    <button class="nav-tab" id="nt-venues"    onclick="setView('venues')">🍴 Venues</button>
+    <button class="nav-tab" id="nt-templates" onclick="setView('templates')">⚡ Templates</button>
+    <button class="nav-tab" id="nt-calendar"  onclick="setView('calendar')">📅 Calendar</button>
+    <button class="nav-tab" style="margin-left:auto;font-size:11px;opacity:.7" onclick="openApsImport()">⬇ APS 2026</button>
+  </div>
+</nav>
+<div class="view-area" id="viewArea"></div>
+</div>
+
+<!-- TRIP MODAL -->
+<div class="mo" id="tripModal"><div class="md">
+<div class="mh"><div><div class="mt2" id="tripMT">New Guest Trip</div><div class="ms2">Set up the visit</div></div><button class="mx" onclick="cm('tripModal')">✕</button></div>
+<div class="mb2">
+  <div class="msec"><div class="msec-t">Guest</div>
+    <div class="fg c1" style="margin-bottom:9px"><div class="fld"><label>Select from Guest Database</label>
+      <select id="f_guestId" onchange="onGuestSelect()"><option value="">— Type new name or select existing —</option></select>
+    </div></div>
+    <div class="fg">
+      <div class="fld"><label>Title</label><select id="f_title"><option>Prof</option><option>Assoc Prof</option><option>Dr</option><option>Mr</option><option>Mrs</option><option>Ms</option></select></div>
+      <div class="fld"><label>Guest Name *</label><input id="f_guestName" placeholder="e.g. Douglas Chen"/></div>
+      <div class="fld s2"><label>Purpose / Role</label><input id="f_purpose" placeholder="e.g. Teaching Visit · Workshop Speaker"/></div>
+      <div class="fld s2"><label>Institution</label><input id="f_org" placeholder="e.g. MIT Department of Biology"/></div>
+    </div>
+  </div>
+  <div class="msec"><div class="msec-t">Visit Dates</div>
+    <div class="fg">
+      <div class="fld"><label>Arrival Date *</label><input type="date" id="f_startDate"/></div>
+      <div class="fld"><label>Departure Date *</label><input type="date" id="f_endDate"/></div>
+    </div>
+  </div>
+  <div class="fld"><label>Colour Tag</label><div class="color-row" id="colorRow">
+    <div class="cswatch sel" data-c="#E86845" style="background:#E86845" onclick="selClr(this)"></div>
+    <div class="cswatch" data-c="#2D7D5A" style="background:#2D7D5A" onclick="selClr(this)"></div>
+    <div class="cswatch" data-c="#1A5FA8" style="background:#1A5FA8" onclick="selClr(this)"></div>
+    <div class="cswatch" data-c="#7C3AED" style="background:#7C3AED" onclick="selClr(this)"></div>
+    <div class="cswatch" data-c="#C97D1A" style="background:#C97D1A" onclick="selClr(this)"></div>
+    <div class="cswatch" data-c="#B53D3D" style="background:#B53D3D" onclick="selClr(this)"></div>
+    <div class="cswatch" data-c="#1A8C8C" style="background:#1A8C8C" onclick="selClr(this)"></div>
+  </div></div>
+</div>
+<div class="mf"><button class="btn-del" id="tripDel" style="display:none" onclick="deleteTrip(true)">Delete Trip</button>
+<button class="btn-can" onclick="cm('tripModal')">Cancel</button><button class="btn-save" onclick="saveTrip()">Save Trip</button></div>
+</div></div>
+
+<!-- GUEST CARD MODAL -->
+<div class="mo" id="gcModal"><div class="md md-lg">
+<div class="mh"><div><div class="mt2">Guest Card</div><div class="ms2" id="gcModalSub">Flights · Accommodation · Companions</div></div><button class="mx" onclick="cm('gcModal')">✕</button></div>
+<div class="mb2">
+  <div class="msec"><div class="msec-t">👤 Personal Details</div>
+    <div class="fg c3">
+      <div class="fld"><label>Nationality</label><input id="gc_nat" placeholder="e.g. American"/></div>
+      <div class="fld"><label>Passport No.</label><input id="gc_ppNo" placeholder="A12345678"/></div>
+      <div class="fld"><label>Passport Expiry</label><input type="date" id="gc_ppExp"/></div>
+      <div class="fld"><label>Email</label><input id="gc_email" placeholder="email@university.edu"/></div>
+      <div class="fld"><label>Phone / WhatsApp</label><input id="gc_phone" placeholder="+1 617 000 0000"/></div>
+      <div class="fld"><label>Dietary</label><select id="gc_dietary"><option value="">None</option><option>Halal</option><option>Vegetarian</option><option>Vegan</option><option>Kosher</option><option>Gluten-Free</option><option>Nut Allergy</option><option>Other</option></select></div>
+      <div class="fld s2"><label>Dietary Notes</label><input id="gc_dietNotes" placeholder="Any specifics..."/></div>
+    </div>
+  </div>
+  <div style="background:rgba(232,104,69,.08);border:1px solid rgba(232,104,69,.2);border-radius:9px;padding:10px 14px;font-size:11px;color:var(--navy);line-height:1.6;margin-bottom:0">
+    <strong>Trip dates vs Hotel nights:</strong> Set trip start/end dates (in Edit Trip) to match the guest's arrival/departure flight dates. Hotel check-in can be <em>earlier</em> (pre-arrival night) — this is captured in the Accommodation section and counted separately for cost purposes.<br>
+    <button onclick="syncTripDatesFromFlights()" style="margin-top:7px;padding:4px 10px;border-radius:6px;border:1px solid var(--coral);background:none;color:var(--coral);cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;font-weight:600">↕ Sync Trip Dates from Flight Dates</button>
+  </div>
+  <div class="msec"><div class="msec-t">✈️ Arrival Flight</div>
+    <div class="fg c3">
+      <div class="fld"><label>Flight No.</label><input id="gc_arrFlt" placeholder="SQ 22"/></div>
+      <div class="fld"><label>Airline</label><input id="gc_arrCar" placeholder="Singapore Airlines"/></div>
+      <div class="fld"><label>From</label><input id="gc_arrFrom" placeholder="Boston, MA"/></div>
+      <div class="fld"><label>Date</label><input type="date" id="gc_arrDate"/></div>
+      <div class="fld"><label>Time</label><input type="time" id="gc_arrTime"/></div>
+      <div class="fld"><label>Terminal</label><select id="gc_arrTmn"><option value="">—</option><option>T1</option><option>T2</option><option>T3</option><option>T4</option><option>PENDING</option></select></div>
+    </div>
+  </div>
+  <div class="msec"><div class="msec-t">🛫 Departure Flight</div>
+    <div class="fg c3">
+      <div class="fld"><label>Flight No.</label><input id="gc_depFlt" placeholder="SQ 23"/></div>
+      <div class="fld"><label>Airline</label><input id="gc_depCar" placeholder="Singapore Airlines"/></div>
+      <div class="fld"><label>To</label><input id="gc_depTo" placeholder="Boston, MA"/></div>
+      <div class="fld"><label>Date</label><input type="date" id="gc_depDate"/></div>
+      <div class="fld"><label>Time</label><input type="time" id="gc_depTime"/></div>
+      <div class="fld"><label>Terminal</label><select id="gc_depTmn"><option value="">—</option><option>T1</option><option>T2</option><option>T3</option><option>T4</option><option>PENDING</option></select></div>
+    </div>
+  </div>
+  <div class="msec"><div class="msec-t">🏨 Accommodation</div>
+    <div class="fg c1" style="margin-bottom:9px">
+      <div class="fld"><label>Select from Hotel Database</label><select id="gc_hotelId" onchange="onHotelSelect()"><option value="">— Select hotel or enter manually —</option></select></div>
+    </div>
+    <div class="fg">
+      <div class="fld"><label>Hotel Name</label><input id="gc_hotel" placeholder="Mandarin Orchard Singapore"/></div>
+      <div class="fld"><label>Room Number</label><input id="gc_room" placeholder="502"/></div>
+      <div class="fld"><label>Check-in Date</label><input type="date" id="gc_cin"/></div>
+      <div class="fld"><label>Check-out Date</label><input type="date" id="gc_cout"/></div>
+      <div class="fld"><label>Early Check-in</label><input type="time" id="gc_eCheckin"/></div>
+      <div class="fld"><label>Late Check-out</label><input type="time" id="gc_lCheckout"/></div>
+      <div class="fld s2"><label>Hotel Address / Notes</label><input id="gc_hotelNotes" placeholder="333 Orchard Rd · Concierge +65 6737 4411"/></div>
+    </div>
+  </div>
+  <div class="msec"><div class="msec-t">🏨 Hotel 2 <span style="font-size:10px;font-weight:400;color:var(--slate2)">(optional — for mid-trip venue change)</span></div>
+    <div class="tgl-row">
+      <div><div style="font-size:13px;font-weight:500">Second hotel stay</div><div style="font-size:11px;color:var(--slate)">e.g. move from conference hotel to another property</div></div>
+      <label class="tgl"><input type="checkbox" id="gc_hasHotel2" onchange="tglHotel2()"/><div class="tgl-s"></div></label>
+    </div>
+    <div id="hotel2Fields" style="display:none;margin-top:10px">
+      <div class="fg c1" style="margin-bottom:9px">
+        <div class="fld"><label>Select from Hotel Database</label><select id="gc_hotelId2" onchange="onHotelSelect2()"><option value="">— Select hotel or enter manually —</option></select></div>
+      </div>
+      <div class="fg">
+        <div class="fld"><label>Hotel Name</label><input id="gc_hotel2" placeholder="Hilton Singapore Orchard"/></div>
+        <div class="fld"><label>Room Number</label><input id="gc_room2" placeholder="1208"/></div>
+        <div class="fld"><label>Check-in Date</label><input type="date" id="gc_cin2"/></div>
+        <div class="fld"><label>Check-out Date</label><input type="date" id="gc_cout2"/></div>
+        <div class="fld"><label>Early Check-in</label><input type="time" id="gc_eCheckin2"/></div>
+        <div class="fld"><label>Late Check-out</label><input type="time" id="gc_lCheckout2"/></div>
+        <div class="fld s2"><label>Hotel Address / Notes</label><input id="gc_hotelNotes2" placeholder="333 Orchard Rd · Concierge +65 6737 xxxx"/></div>
+      </div>
+    </div>
+  </div>
+  <div class="msec"><div class="msec-t">💑 Spouse / Partner</div>
+    <div class="tgl-row">
+      <div><div style="font-size:13px;font-weight:500">Spouse / Partner accompanying</div><div style="font-size:11px;color:var(--slate);margin-top:1px">Toggle to add details</div></div>
+      <div style="display:flex;align-items:center;gap:8px"><button id="spouseSyncBtn" onclick="syncSpouseFromDB()" style="display:none;font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--coral);color:var(--coral);background:none;cursor:pointer">↓ Sync from Guest DB</button><label class="tgl"><input type="checkbox" id="gc_hasSpouse" onchange="tglSpouse()"/><div class="tgl-s"></div></label></div>
+    </div>
+    <div id="spouseFields" style="display:none;margin-top:8px">
+      <div class="fg c3">
+        <div class="fld"><label>Title</label><select id="gc_spTitle"><option>Mrs</option><option>Mr</option><option>Ms</option><option>Dr</option><option>Prof</option></select></div>
+        <div class="fld"><label>Name *</label><input id="gc_spName" placeholder="Jane Chen"/></div>
+        <div class="fld"><label>Dietary</label><select id="gc_spDiet"><option value="">None</option><option>Halal</option><option>Vegetarian</option><option>Vegan</option><option>Kosher</option><option>Gluten-Free</option><option>Other</option></select></div>
+        <div class="fld"><label>Passport No.</label><input id="gc_spPP" placeholder="B98765432"/></div>
+        <div class="fld"><label>Nationality</label><input id="gc_spNat" placeholder="American"/></div>
+        <div class="fld"><label>Notes</label><input id="gc_spNotes" placeholder="Any requirements"/></div>
+      </div>
+    </div>
+  </div>
+  <div class="msec"><div class="msec-t">👥 Additional Companions</div>
+    <div id="companionsList"></div>
+    <button class="btn-add-sm" style="margin-top:7px" onclick="addComp()">＋ Add Companion</button>
+  </div>
+</div>
+<div class="mf"><button class="btn-can" onclick="cm('gcModal')">Cancel</button><button class="btn-save" onclick="saveGC()">Save Guest Card</button></div>
+</div></div>
+
+<!-- ITEM MODAL -->
+<div class="mo" id="itemModal"><div class="md">
+<div class="mh"><div><div class="mt2" id="iMT">Add Item</div><div class="ms2" id="iMS"></div></div><button class="mx" onclick="cm('itemModal')">✕</button></div>
+<div class="mb2">
+  <div class="fld"><label>Quick Add from Template</label>
+    <select id="i_tpl" onchange="applyItemTemplate()"><option value="">— Select a template to pre-fill —</option></select>
+  </div>
+  <div class="fg">
+    <div class="fld s2"><label>Title *</label><input id="i_title" placeholder="e.g. Opening Lecture"/></div>
+    <div class="fld"><label>Time</label><input type="time" id="i_time"/></div>
+    <div class="fld"><label>Status</label><select id="i_status"><option value="confirmed">Confirmed</option><option value="pending">Pending</option><option value="tbd">TBD</option><option value="cancelled">Cancelled</option></select></div>
+    <div class="fld s2"><label>Location / Venue</label><div style="display:flex;gap:6px"><select id="i_venueSel" onchange="applyVenue()" style="padding:7px 9px;border-radius:7px;border:1px solid var(--border);font-family:'Inter',sans-serif;font-size:12px;color:var(--navy);background:#fff;outline:none;min-width:160px"><option value="">— Quick select venue —</option></select><input id="i_loc" placeholder="or type location" style="flex:1"/></div></div>
+    <div class="fld s2"><label>Notes</label><textarea id="i_notes" placeholder="Additional details..."></textarea></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:2px">
+    <div class="fld"><label>Host Override <span style="font-size:10px;color:var(--slate2)">(overrides day host)</span></label>
+      <select id="i_hostId" onchange="onItemHDSel('host')"><option value="">— Inherit day host —</option></select>
+    </div>
+    <div class="fld"><label>Driver Override <span style="font-size:10px;color:var(--slate2)">(overrides day driver)</span></label>
+      <select id="i_driverId" onchange="onItemHDSel('driver')"><option value="">— Inherit day driver —</option></select>
+    </div>
+  </div>
+</div>
+<div class="mf"><button class="btn-del" id="iDel" style="display:none" onclick="delItem()">Delete</button><button class="btn-can" onclick="cm('itemModal')">Cancel</button><button class="btn-save" onclick="saveItem()">Save</button></div>
+</div></div>
+
+<!-- HOST/DRIVER MODAL -->
+<div class="mo" id="hdModal"><div class="md" style="max-width:400px">
+<div class="mh"><div><div class="mt2" id="hdMT">Assign Host</div><div class="ms2" id="hdMS"></div></div><button class="mx" onclick="cm('hdModal')">✕</button></div>
+<div class="mb2">
+  <div class="fld"><label>Select from Database</label><select id="hd_dbSel" onchange="onHDSelect()"><option value="">— Select or enter manually —</option></select></div>
+  <div class="fld"><label id="hdLabel">Name</label><input id="hd_name" placeholder="e.g. Dr Sarah Lim"/></div>
+  <div class="fld"><label>Contact / Notes</label><input id="hd_contact" placeholder="e.g. +65 9123 4567"/></div>
+</div>
+<div class="mf"><button class="btn-can" onclick="cm('hdModal')">Cancel</button><button class="btn-save" onclick="saveHD()">Save</button></div>
+</div></div>
+
+<!-- GUEST DB MODAL -->
+<div class="mo" id="guestDBModal"><div class="md md-xl">
+<div class="mh"><div><div class="mt2" id="gdbMT">Add Guest</div><div class="ms2" id="gdbMS">Guest database entry</div></div><button class="mx" onclick="cm('guestDBModal')">✕</button></div>
+<div class="mb2">
+
+  <!-- PERSONAL INFORMATION -->
+  <div class="msec">
+    <div class="gdb-section-title">Personal Information</div>
+    <!-- Row 1: photo + name -->
+    <div style="display:grid;grid-template-columns:88px 1fr;gap:14px;align-items:start;margin-bottom:10px">
+      <!-- Photo -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div class="gdb-photo-wrap" id="gdb_photoWrap" onclick="document.getElementById('gdb_photoInput').click()" title="Click to upload photo" style="width:80px;height:80px">
+          <img id="gdb_photoImg" src="" style="display:none;width:100%;height:100%;object-fit:cover">
+          <div id="gdb_photoPlaceholder" style="display:flex;flex-direction:column;align-items:center"><span style="font-size:20px">📷</span><div class="gdb-photo-lbl">Photo</div></div>
+        </div>
+        <input type="file" id="gdb_photoInput" accept="image/*" style="display:none" onchange="onGuestPhoto(event)">
+        <button id="gdb_photoRemove" style="display:none;font-size:10px;color:var(--coral);border:none;background:none;cursor:pointer;padding:0" onclick="removeGuestPhoto()">✕ Remove</button>
+      </div>
+      <!-- Name row -->
+      <div style="display:grid;grid-template-columns:100px 1fr 1fr;gap:9px">
+        <div class="fld"><label>Title</label><select id="gdb_title"><option>Prof</option><option>Assoc Prof</option><option>Dr</option><option>Mr</option><option>Mrs</option><option>Ms</option><option>—</option></select></div>
+        <div class="fld"><label>First Name *</label><input id="gdb_first" placeholder="Douglas"/></div>
+        <div class="fld"><label>Last Name *</label><input id="gdb_last" placeholder="Petersen"/></div>
+      </div>
+    </div>
+    <!-- Row 2: country / spouse / passport -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:10px">
+      <div class="fld"><label>Country</label><input id="gdb_nat" placeholder="e.g. USA, Singapore"/></div>
+      <div class="fld"><label>Spouse / Partner</label><input id="gdb_spouse" placeholder="e.g. Sis Myrna" oninput="refreshGDBDiet()"/></div>
+      <div class="fld"><label>Passport No.</label><input id="gdb_ppNo" placeholder="A12345678"/></div>
+    </div>
+    <!-- Row 3: title/position -->
+    <div class="fld" style="margin-bottom:10px"><label>Title / Position</label><textarea id="gdb_org" placeholder="e.g. Professor Emeritus, School of Theology & Ministry, Vanguard University" style="min-height:52px;resize:vertical"></textarea></div>
+    <!-- Row 4: contact -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px">
+      <div class="fld"><label>Email</label><input id="gdb_email" placeholder="email@university.edu"/></div>
+      <div class="fld"><label>Phone / WhatsApp</label><input id="gdb_phone" placeholder="+1 617 000 0000"/></div>
+      <div class="fld"><label>Notes</label><input id="gdb_notes" placeholder="Any additional info"/></div>
+    </div>
+  </div>
+
+  <!-- DIETARY & PREFERENCES -->
+  <div class="msec">
+    <div class="gdb-section-title">Dietary &amp; Preferences</div>
+    <div style="font-size:11px;color:var(--slate);margin-bottom:12px">Fill dietary info separately for each person. Spouse section appears automatically when a spouse name is entered above.</div>
+
+    <!-- Guest dietary block -->
+    <div class="diet-block">
+      <div class="diet-who"><span class="diet-badge guest-b">Guest</span><span class="diet-who-name" id="gdb_dietGuestName"></span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <div class="fld"><label>Food Allergen / Dislike</label><textarea id="gdb_allergen" placeholder="e.g. DP: No tofu, small seeds..." style="min-height:64px;resize:vertical"></textarea></div>
+        <div class="fld"><label>Food Preference</label><textarea id="gdb_foodPref" placeholder="e.g. White meat, no pork..." style="min-height:64px;resize:vertical"></textarea></div>
+        <div class="fld"><label>Hot Beverage</label><input id="gdb_bevHot" placeholder="e.g. Coffee, Tea"/></div>
+        <div class="fld"><label>Cold Beverage</label><input id="gdb_bevCold" placeholder="e.g. Sparkling water"/></div>
+        <div class="fld" style="grid-column:1/-1"><label>Server / Host Note <span class="for-srv">FOR SERVERS</span></label><input id="gdb_serverNote" class="srv-input" placeholder="e.g. No red meat – very strict. Keep away from shellfish."/></div>
+      </div>
+    </div>
+
+    <!-- Spouse dietary block (shown only when spouse name filled) -->
+    <div class="diet-block" id="gdb_spouseDietBlock" style="display:none">
+      <div class="diet-who"><span class="diet-badge spouse-b">Spouse</span><span class="diet-who-name" id="gdb_dietSpouseName"></span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <div class="fld"><label>Food Allergen / Dislike</label><textarea id="gdb_spAllergen" placeholder="e.g. No seafood, no nuts..." style="min-height:64px;resize:vertical"></textarea></div>
+        <div class="fld"><label>Food Preference</label><textarea id="gdb_spFoodPref" placeholder="e.g. White meat, no pork..." style="min-height:64px;resize:vertical"></textarea></div>
+        <div class="fld"><label>Hot Beverage</label><input id="gdb_spBevHot" placeholder="e.g. Coffee, Tea"/></div>
+        <div class="fld"><label>Cold Beverage</label><input id="gdb_spBevCold" placeholder="e.g. Sparkling water"/></div>
+        <div class="fld" style="grid-column:1/-1"><label>Server / Host Note <span class="for-srv">FOR SERVERS</span></label><input id="gdb_spServerNote" class="srv-input" placeholder="e.g. Vegetarian – strict."/></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="mf"><button class="btn-del" id="gdbDel" style="display:none" onclick="delGuestDB()">Delete</button><button class="btn-can" onclick="cm('guestDBModal')">Cancel</button><button class="btn-save" onclick="saveGuestDB()">Save Guest</button></div>
+</div></div>
+
+<!-- Host/Driver/Hotel edit forms now use full-page views -->
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────
+let S={trips:[],guests:[],hosts:[],drivers:[],hotels:[],venues:[],calEvents:[],activeTripId:null,view:'trips',cal:{view:'month',date:localYM()+'-01'}};
+let X={};
+
+// ── PERSIST ─────────────────────────────────────────────────────────────────
+function save(){localStorage.setItem('hospi_v3',JSON.stringify(S));}
+function load(){try{const d=localStorage.getItem('hospi_v3');if(d){const p=JSON.parse(d);Object.assign(S,p);}}catch(e){}}
+
+// ── UTILS ────────────────────────────────────────────────────────────────────
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function ini(n){return (n||'').split(' ').filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('')||'?';}
+function fd(d){if(!d)return '—';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'});}
+function fds(d){if(!d)return '—';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-SG',{day:'numeric',month:'short'});}
+function fdy(d){const dt=new Date(d+'T00:00:00');return{day:dt.getDate(),month:dt.toLocaleString('en',{month:'short'}).toUpperCase(),dow:dt.toLocaleString('en',{weekday:'short'})};}
+function nts(a,b){if(!a||!b)return 0;return Math.max(0,Math.round((new Date(b)-new Date(a))/86400000));}
+function localDate(dt){const d=dt||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function localYM(dt){const d=dt||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+function drange(s,e){const ds=[];let d=new Date(s+'T00:00:00'),en=new Date(e+'T00:00:00');while(d<=en){ds.push(localDate(d));d.setDate(d.getDate()+1);}return ds;}
+function tSt(t){const td=localDate();if(t.endDate<td)return'past';if(t.startDate<=td)return'active-now';return'upcoming';}
+function gAct(){return S.trips.find(t=>t.id===S.activeTripId);}
+function ensureDays(t){if(!t.days)t.days={};drange(t.startDate,t.endDate).forEach(d=>{if(!t.days[d])t.days[d]={hostId:'',host:'',hostContact:'',driverId:'',driver:'',driverContact:'',events:[],meals:[],activities:[]};});}
+function gv(id){const e=document.getElementById(id);return e?e.value:'';}
+function sv(id,v){const e=document.getElementById(id);if(e)e.value=v||'';}
+function mkEl(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!==undefined)e.innerHTML=html;return e;}
+
+// ── STATS ────────────────────────────────────────────────────────────────────
+function hostStats(hid){let days=0;const tids=new Set();S.trips.forEach(t=>{Object.values(t.days||{}).forEach(d=>{if(d.hostId===hid){days++;tids.add(t.id);}});});return{days,trips:tids.size};}
+function driverStats(did){let days=0;const tids=new Set();S.trips.forEach(t=>{Object.values(t.days||{}).forEach(d=>{if(d.driverId===did){days++;tids.add(t.id);}});});return{days,trips:tids.size};}
+function hotelStats(hid){let nights=0;const guests=[];S.trips.forEach(t=>{if(t.hotelId===hid){nights+=nts(t.checkin,t.checkout);guests.push(((t.titleStr||'')+' '+t.guestName).trim());}});return{nights,guests};}
+
+// ── VIEW ROUTER ──────────────────────────────────────────────────────────────
+function setView(v){S.view=v;save();render();}
+function render(){
+  try{
+    document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+    const activeTab={editGuest:'guests',editHost:'hosts',editDriver:'drivers',editHotel:'hotels',editVenue:'venues',editTemplate:'templates'}[S.view]||S.view;
+    const nt=document.getElementById('nt-'+activeTab);if(nt)nt.classList.add('active');
+    const va=document.getElementById('viewArea');
+    va.innerHTML='';va.removeAttribute('style');
+    if(S.view==='trips')renderTripsView(va);
+    else if(S.view==='calendar')renderCalView(va);
+    else if(S.view==='editGuest')renderEditGuestPage(va);
+    else if(S.view==='editHost')renderEditHostPage(va);
+    else if(S.view==='editDriver')renderEditDriverPage(va);
+    else if(S.view==='editHotel')renderEditHotelPage(va);
+    else if(S.view==='venues')renderDBView(va,'venues');
+    else if(S.view==='editVenue')renderEditVenuePage(va);
+    else if(S.view==='templates')renderTemplatesPage(va);
+    else if(S.view==='editTemplate')renderEditTemplatePage(va);
+    else renderDBView(va,S.view);
+  }catch(err){
+    console.error('Hospi render error:',err);
+    const vaErr=document.getElementById('viewArea');
+    if(vaErr){
+      const msg=String(err).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      vaErr.innerHTML='<div style="padding:40px 24px;max-width:600px;margin:0 auto"><div style="background:#FEE2E2;border:1px solid #FECACA;border-radius:12px;padding:20px 22px"><p style="color:#991B1B;font-weight:700;font-size:14px;margin-bottom:8px">⚠ Render Error</p><code style="font-size:11px;color:#7F1D1D;display:block;line-height:1.6">'+msg+'</code></div><div style="margin-top:16px;display:flex;gap:8px"><button onclick="S.view=String(atob(' + "'dHJpcHM=')" + ');save();location.reload();" style="padding:9px 20px;border-radius:8px;border:none;background:#1A2E4A;color:#fff;cursor:pointer;font-weight:600;font-family:Inter,sans-serif">↩ Reload</button></div></div>';
+    }
+  }
+}
+
+// ── TRIPS VIEW ───────────────────────────────────────────────────────────────
+function renderTripsView(va){
+  va.style.cssText='flex:1;display:flex;overflow:hidden;';
+  // Sidebar
+  const sb=mkEl('aside','sidebar');
+  const si=mkEl('div','sidebar-inner');
+  const nb=mkEl('button','btn-new');nb.textContent='＋ New Guest Trip';nb.onclick=()=>openTripModal();
+  si.appendChild(nb);sb.appendChild(si);
+  sb.appendChild(mkEl('div','sec-head','Guests'));
+  const tl=mkEl('div','trip-list');tl.id='tripList';sb.appendChild(tl);
+  va.appendChild(sb);
+  // Main
+  const mp=mkEl('div','main-pane');mp.style.cssText='flex:1;display:flex;flex-direction:column;overflow:hidden;';
+  const tb=mkEl('div','topbar');tb.id='topbar';mp.appendChild(tb);
+  const mc=mkEl('div');mc.id='mainContent';mc.style.cssText='flex:1;overflow-y:auto;display:flex;flex-direction:column;';mp.appendChild(mc);
+  va.appendChild(mp);
+  renderSidebar();renderTripContent();
+}
+function renderSidebar(){
+  const tl=document.getElementById('tripList');if(!tl)return;
+  if(!S.trips.length){tl.innerHTML='<div style="padding:16px 12px;color:rgba(255,255,255,.3);font-size:12px;text-align:center;line-height:1.7">No trips yet.<br>Add one above ↑</div>';return;}
+  const sorted=[...S.trips].sort((a,b)=>a.startDate>b.startDate?1:-1);
+  const lbl={upcoming:'Soon','active-now':'Now',past:'Past'};
+  tl.innerHTML=sorted.map(t=>`<div class="trip-item${S.activeTripId===t.id?' active':''}" onclick="selectTrip('${t.id}')">${(()=>{const g=S.guests.find(x=>x.id===t.guestId);return g?.photo?'<img src="'+g.photo+'" style="width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0">':`<div class="trip-av" style="background:${t.color||'#E86845'}">${ini(t.guestName)}</div>`;})()}<div class="trip-info"><div class="trip-name">${esc((t.titleStr||'')+' '+t.guestName)}</div><div class="trip-meta">${fds(t.startDate)} – ${fds(t.endDate)}${t.hasSpouse?' · 👫':''}</div></div><div class="trip-badge ${tSt(t)}">${lbl[tSt(t)]}</div></div>`).join('');
+}
+function renderTripContent(){
+  const tb=document.getElementById('topbar');const mc=document.getElementById('mainContent');if(!tb||!mc)return;
+  const t=gAct();
+  if(!t){tb.innerHTML='';mc.innerHTML=`<div class="empty-state"><div class="e-icon">✈️</div><div class="e-title">Welcome to Hospi</div><div class="e-sub">Manage visiting guests with flights, accommodation and day-by-day itineraries.</div><button class="btn-primary" onclick="openTripModal()">＋ Add First Guest Trip</button></div>`;return;}
+  ensureDays(t);
+  const st=tSt(t);const slbl={past:'Past','active-now':'In Progress',upcoming:'Upcoming'};
+  tb.innerHTML=`<div><div class="topbar-title">${esc((t.titleStr||'')+' '+t.guestName)}</div><div class="topbar-sub">${esc([t.purpose,t.org].filter(Boolean).join(' · '))}</div></div><div class="topbar-r"><span class="status-pill ${st}"><span class="dot"></span>${slbl[st]}</span><button class="btn-outline" onclick="openTripModal(true)">✏️ Edit</button><button class="btn-outline" style="color:#991B1B;border-color:#FEE2E2" onclick="deleteTrip()">🗑</button></div>`;
+  const dates=drange(t.startDate,t.endDate);
+  mc.innerHTML=`<div style="padding:18px 22px"><div id="gcArea">${renderGC(t)}</div><div class="days-grid" id="daysGrid">${dates.map((d,i)=>renderDayCard(t,d,i)).join('')}</div></div>`;
+  const today=localDate();
+  const exp=dates.includes(today)?today:dates[0];
+  if(exp)togDay(exp,true);
+}
+function selectTrip(id){S.activeTripId=id;save();renderSidebar();renderTripContent();}
+
+// ── GUEST CARD ───────────────────────────────────────────────────────────────
+function renderGC(t){
+  const linkedG=S.guests.find(x=>x.id===t.guestId);
+  const gPhoto=linkedG?.photo||null;
+  const c=t.color||'#E86845';
+  const pills=[];
+  if(t.nationality)pills.push(`<span class="gpill nat">🌐 ${esc(t.nationality)}</span>`);
+  if(t.dietary)pills.push(`<span class="gpill dietary">🍽 ${esc(t.dietary)}</span>`);
+  if(t.hasSpouse&&t.spouseName)pills.push(`<span class="gpill spouse">👫 ${esc((t.spouseTitle||'')+' '+t.spouseName)}</span>`);
+  (t.companions||[]).forEach(c2=>{if(c2.name)pills.push(`<span class="gpill comp">👤 ${esc(c2.name)}</span>`);});
+  // n kept for htlH display; totalNights includes hotel2
+  const n=nts(t.checkin||t.startDate,t.checkout||t.endDate);
+  let arrH='<div class="gc-empty">Not set — click Edit Card</div>';
+  if(t.arrFlight||t.arrFrom)arrH=`<div class="f-row"><span class="f-dir arr">ARR</span><div style="flex:1"><div class="f-num">${esc(t.arrFlight||'—')} <span style="font-weight:400;font-size:10px;color:rgba(255,255,255,.4)">${esc(t.arrCarrier||'')}</span></div><div class="f-detail">from ${esc(t.arrFrom||'—')} · ${fds(t.arrDate)} · ${esc(t.arrTerminal||'—')}</div></div><div class="f-time">${t.arrTime||''}</div></div>`;
+  let depH='<div class="gc-empty">Not set — click Edit Card</div>';
+  if(t.depFlight||t.depTo)depH=`<div class="f-row"><span class="f-dir dep">DEP</span><div style="flex:1"><div class="f-num">${esc(t.depFlight||'—')} <span style="font-weight:400;font-size:10px;color:rgba(255,255,255,.4)">${esc(t.depCarrier||'')}</span></div><div class="f-detail">to ${esc(t.depTo||'—')} · ${fds(t.depDate)} · ${esc(t.depTerminal||'—')}</div></div><div class="f-time">${t.depTime||''}</div></div>`;
+  let htlH='<div class="gc-empty">Not set — click Edit Card</div>';
+  const totalNights=(nts(t.checkin||t.startDate,t.checkout||t.endDate))+(t.hasHotel2?nts(t.checkin2,t.checkout2):0);
+  const preArrNights=t.checkin&&t.startDate?Math.max(0,Math.round((new Date(t.startDate)-new Date(t.checkin))/86400000)):0;
+  if(t.hotel)htlH=`<div class="h-name">${esc(t.hotel)}</div>${t.room?`<div class="h-room">Room ${esc(t.room)}</div>`:''}<div class="h-dates"><div class="h-dr"><span class="h-dl">Check-in</span><span class="h-dv">${fds(t.checkin||t.startDate)}${t.earlyCheckin?' · Early '+t.earlyCheckin:''}</span></div><div class="h-dr"><span class="h-dl">Check-out</span><span class="h-dv">${fds(t.checkout||t.endDate)}${t.lateCheckout?' · Late '+t.lateCheckout:''}</span></div>${t.hotelNotes?`<div class="h-dr"><span class="h-dl" style="color:rgba(255,255,255,.22);font-size:10px">${esc(t.hotelNotes)}</span></div>`:''}</div>`;
+  if(preArrNights>0)htlH+=`<div class="h-dr" style="background:rgba(232,104,69,.08);margin-top:6px;border-radius:5px;padding:3px 6px"><span class="h-dl" style="color:var(--coral)">⚠ Pre-arrival</span><span class="h-dv" style="color:rgba(255,255,255,.85);font-size:10px">${preArrNights} night${preArrNights>1?'s':''} before guest arrives · counts for cost</span></div>`;
+  if(t.hasHotel2&&t.hotel2)htlH+=`<div class="h-dr" style="margin-top:7px;border-top:1px solid rgba(255,255,255,.12);padding-top:7px"><span class="h-dl">Hotel 2</span><span class="h-dv" style="font-size:10px">${esc(t.hotel2)}${t.room2?' · Rm '+esc(t.room2):''} · ${fds(t.checkin2)}–${fds(t.checkout2)}</span></div>`;
+  const allC=[];
+  if(t.hasSpouse&&t.spouseName)allC.push({name:(t.spouseTitle||'')+' '+t.spouseName,role:'Spouse'+(t.spouseDietary?' · '+t.spouseDietary:'')});
+  (t.companions||[]).filter(c2=>c2.name).forEach(c2=>allC.push({name:c2.name,role:[c2.role,c2.dietary].filter(Boolean).join(' · ')}));
+  const compH=allC.length?allC.map(c2=>`<div class="comp-item"><div class="comp-av">${ini(c2.name)}</div><div><div class="comp-name">${esc(c2.name)}</div><div class="comp-sub">${esc(c2.role)}</div></div></div>`).join(''):'<span style="font-size:11px;color:rgba(255,255,255,.2);font-style:italic">Travelling alone — no companions</span>';
+  return `<div class="guest-card"><div class="gc-head"><div class="gc-bg"></div>${gPhoto?`<img src="${gPhoto}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.2);position:relative;z-index:1;flex-shrink:0">`:'<div class="gc-av" style="background:'+c+'">'+ ini(t.guestName)+'</div>'}<div class="gc-meta"><div class="gc-name">${esc((t.titleStr||'')+' '+t.guestName)}</div><div class="gc-role">${esc([t.purpose,t.org].filter(Boolean).join(' · '))}</div><div class="gc-pills">${pills.join('')||'<span style="font-size:11px;color:rgba(255,255,255,.25);font-style:italic">Click Edit Card to add details</span>'}</div></div><button class="gc-edit" onclick="openGC()">✏️ Edit Card</button></div><div class="gc-panels"><div class="gc-panel"><div class="gc-plabel">✈️ Arrival</div>${arrH}</div><div class="gc-panel"><div class="gc-plabel">🛫 Departure</div>${depH}</div><div class="gc-panel"><div class="gc-plabel">🏨 Accommodation</div>${htlH}</div></div><div class="gc-companions">${compH}</div></div>`;
+}
+
+// ── DAY CARDS ────────────────────────────────────────────────────────────────
+function renderDayCard(t,date,i){
+  const day=t.days[date]||{};
+  const{day:d,month:m,dow:w}=fdy(date);
+  const tot=(day.events||[]).length+(day.meals||[]).length+(day.activities||[]).length;
+  const secH=(items,key,icon,lbl)=>{
+    const rows=(items||[]).map((item,idx)=>`<div class="irow"><div class="itime">${item.time||'—'}</div><div class="ibody"><div class="ititle">${esc(item.title)}</div>${item.location?`<div class="iloc">📍 ${esc(item.location)}</div>`:''} ${item.notes?`<div class="inote">${esc(item.notes)}</div>`:''} ${item.host?`<div style="font-size:10px;color:var(--slate);margin-top:2px">🧑‍💼 ${esc(item.host)}${item.driver?' · 🚗 '+esc(item.driver):''}</div>`:(item.driver?`<div style="font-size:10px;color:var(--slate);margin-top:2px">🚗 ${esc(item.driver)}</div>`:'')}</div><span class="s-badge ${item.status||'tbd'}">${item.status||'tbd'}</span><div class="iacts"><button class="ibtn" onclick="openEditItem('${date}','${key}',${idx})">✏️</button><button class="ibtn del" onclick="doDelItem('${date}','${key}',${idx})">🗑</button></div></div>`).join('');
+    return `<div class="sg"><div class="sg-lbl">${icon} ${lbl}</div>${rows}<button class="add-btn" onclick="openAddItem('${date}','${key}')">＋ Add ${lbl}</button></div>`;
+  };
+  return `<div class="day-card"><div class="day-ch" id="dh_${date}" onclick="togDay('${date}')"><div class="stamp"><div class="stamp-n">${i+1}</div><div class="stamp-d">${d}</div><div class="stamp-m">${m}</div><div class="stamp-w">${w}</div></div><div class="day-hinfo"><div class="day-htitle">Day ${i+1}</div><div class="day-chips"><span class="dchip host">🧑‍💼 ${esc(day.host||'No host')}</span><span class="dchip driver">🚗 ${esc(day.driver||'No driver')}</span></div><div class="day-cnt">${tot} item${tot!==1?'s':''}</div></div><div class="day-tog" id="dt_${date}">▶</div></div><div class="day-body collapsed" id="db_${date}"><div class="hd-row"><div class="hd-card" onclick="openHD('${date}','host')"><span>🧑‍💼</span><div><div class="hd-l">Host</div><div class="hd-n${!day.host?' empty':''}">${esc(day.host||'Assign host…')}</div>${day.hostContact?`<div class="hd-c">${esc(day.hostContact)}</div>`:''}</div><span style="color:var(--slate2);margin-left:auto">›</span></div><div class="hd-card" onclick="openHD('${date}','driver')"><span>🚗</span><div><div class="hd-l">Driver</div><div class="hd-n${!day.driver?' empty':''}">${esc(day.driver||'Assign driver…')}</div>${day.driverContact?`<div class="hd-c">${esc(day.driverContact)}</div>`:''}</div><span style="color:var(--slate2);margin-left:auto">›</span></div></div>${secH(day.events,'events','📅','Event')}${secH(day.meals,'meals','🍽️','Meal')}${secH(day.activities,'activities','🎯','Activity')}</div></div>`;
+}
+function togDay(date,fo=false){
+  const b=document.getElementById('db_'+date),t=document.getElementById('dt_'+date);if(!b)return;
+  const open=!b.classList.contains('collapsed');
+  if(fo){if(open)return;b.classList.remove('collapsed');t.classList.add('open');}
+  else{if(open){b.classList.add('collapsed');t.classList.remove('open');}else{b.classList.remove('collapsed');t.classList.add('open');}}
+}
+
+// ── DB VIEWS ─────────────────────────────────────────────────────────────────
+function renderDBView(va,type){
+  va.style.cssText='flex:1;display:flex;flex-direction:column;overflow:hidden;';
+  const fw=mkEl('div','fw-view');
+  if(type==='guests')fw.innerHTML=renderGuestsDB();
+  else if(type==='hosts')fw.innerHTML=renderHostsDB();
+  else if(type==='drivers')fw.innerHTML=renderDriversDB();
+  else if(type==='hotels')fw.innerHTML=renderHotelsDB();
+  else if(type==='venues')fw.innerHTML=renderVenuesDB();
+  va.appendChild(fw);
+}
+function renderGuestsDB(){
+  const g=S.guests;
+  const q=(S.guestSearch||'').toLowerCase();
+  const gf=q?g.filter(x=>((x.firstName||'')+' '+(x.lastName||'')+' '+(x.org||'')+' '+(x.nationality||'')).toLowerCase().includes(q)):g;
+  return `<div class="db-header"><div><div class="db-title">👤 Guest Database</div><div class="db-sub">Biodata registry for all visiting guests</div></div><div style="display:flex;gap:8px;align-items:center"><input value="${esc(S.guestSearch||'')}" oninput="S.guestSearch=this.value;setView('guests')" placeholder="🔍 Search guests..." style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);font-family:'Inter',sans-serif;font-size:12px;outline:none;width:200px"><button class="btn-primary" onclick="openGuestDBModal()">＋ Add Guest</button></div></div>
+  <div class="stat-cards"><div class="stat-card"><div class="stat-num">${g.length}</div><div class="stat-lbl">Registered Guests</div></div><div class="stat-card"><div class="stat-num">${S.trips.length}</div><div class="stat-lbl">Total Trips</div></div><div class="stat-card"><div class="stat-num">${g.filter(x=>x.dietary).length}</div><div class="stat-lbl">Dietary Requirements</div></div><div class="stat-card"><div class="stat-num">${[...new Set(g.map(x=>x.nationality).filter(Boolean))].length}</div><div class="stat-lbl">Nationalities</div></div></div>
+  <div class="table-wrap"><table class="db-table"><thead><tr><th>#</th><th>Guest</th><th>Title / Position</th><th>Country</th><th>Dietary / Allergen</th><th>Trips</th><th>Contact</th><th></th></tr></thead><tbody>${gf.length?gf.map((g2,i)=>{const tc=S.trips.filter(t=>t.guestId===g2.id).length;const dietSummary=[g2.allergen,g2.foodPref].filter(Boolean).join(' · ').slice(0,50)||'—';const hasSpouse=g2.spouseName;return`<tr><td style="color:var(--slate2)">${i+1}</td><td style="min-width:160px"><div style="display:flex;align-items:center;gap:8px">${g2.photo?`<img src="${g2.photo}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0">`:''}<div><div class="db-name">${esc(g2.title||'')} ${esc(g2.firstName)} ${esc(g2.lastName)}</div><div class="db-sub2">${hasSpouse?'👫 '+esc(g2.spouseName):esc(g2.email||'')}</div></div></div></td><td style="font-size:11px;color:var(--slate);max-width:220px;line-height:1.4">${esc(g2.org||'—')}</td><td>${g2.nationality?`<span class="tag navy">${esc(g2.nationality)}</span>`:'<span style="color:var(--slate2)">—</span>'}</td><td style="font-size:11px;color:var(--slate);max-width:180px">${esc(dietSummary)}</td><td><span class="stat-badge">${tc} trip${tc!==1?'s':''}</span></td><td style="font-size:11px;color:var(--slate)">${esc(g2.phone||'—')}</td><td><div class="row-acts"><button class="ract" onclick="openGuestDBModal('${g2.id}')">Edit</button><button class="ract del" onclick="confirmDelGDB('${g2.id}')">Del</button></div></td></tr>`;}).join(''):`<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--slate);font-style:italic">${q?"No guests match your search.":"No guests yet. Click \"Add Guest\" to start."}</td></tr>`}</tbody></table></div>`;
+}
+function renderHostsDB(){
+  const h=S.hosts;const totalDays=h.reduce((s,x)=>s+hostStats(x.id).days,0);
+  return `<div class="db-header"><div><div class="db-title">🧑‍💼 Host Database</div><div class="db-sub">Faculty and staff hosting records</div></div><button class="btn-primary" onclick="openHostModal()">＋ Add Host</button></div>
+  <div class="stat-cards"><div class="stat-card"><div class="stat-num">${h.length}</div><div class="stat-lbl">Registered Hosts</div></div><div class="stat-card"><div class="stat-num">${totalDays}</div><div class="stat-lbl">Total Hosting Days</div></div><div class="stat-card"><div class="stat-num">${h.filter(x=>hostStats(x.id).trips>0).length}</div><div class="stat-lbl">Active Hosts</div></div><div class="stat-card"><div class="stat-num">${S.trips.length}</div><div class="stat-lbl">Total Trips</div></div></div>
+  <div class="table-wrap"><table class="db-table"><thead><tr><th>#</th><th>Host</th><th>Dept / Title</th><th>Days Hosted</th><th>Trips Covered</th><th>Contact</th><th></th></tr></thead><tbody>${h.length?h.map((hst,i)=>{const st=hostStats(hst.id);return`<tr><td style="color:var(--slate2)">${i+1}</td><td><div class="db-name">${esc(hst.name)}</div></td><td style="font-size:12px;color:var(--slate)">${esc(hst.dept||'—')}</td><td><span class="stat-badge" style="${st.days>0?'background:rgba(45,125,90,.1);color:#166534':''}">📅 ${st.days} day${st.days!==1?'s':''}</span></td><td><span class="stat-badge">${st.trips} trip${st.trips!==1?'s':''}</span></td><td style="font-size:11px;color:var(--slate)">${esc(hst.phone||hst.email||'—')}</td><td><div class="row-acts"><button class="ract" onclick="openHostModal('${hst.id}')">Edit</button><button class="ract del" onclick="confirmDelHost('${hst.id}')">Del</button></div></td></tr>`;}).join(''):`<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--slate);font-style:italic">No hosts yet.</td></tr>`}</tbody></table></div>`;
+}
+function renderDriversDB(){
+  const d=S.drivers;const totalDays=d.reduce((s,x)=>s+driverStats(x.id).days,0);
+  return `<div class="db-header"><div><div class="db-title">🚗 Driver Database</div><div class="db-sub">Driver registry with assignment history</div></div><button class="btn-primary" onclick="openDriverModal()">＋ Add Driver</button></div>
+  <div class="stat-cards"><div class="stat-card"><div class="stat-num">${d.length}</div><div class="stat-lbl">Registered Drivers</div></div><div class="stat-card"><div class="stat-num">${totalDays}</div><div class="stat-lbl">Total Driving Days</div></div><div class="stat-card"><div class="stat-num">${d.filter(x=>driverStats(x.id).trips>0).length}</div><div class="stat-lbl">Active Drivers</div></div><div class="stat-card"><div class="stat-num">${d.filter(x=>x.vtype==='MPV'||x.vtype==='Minibus').length}</div><div class="stat-lbl">Large Vehicle</div></div></div>
+  <div class="table-wrap"><table class="db-table"><thead><tr><th>#</th><th>Driver</th><th>Vehicle</th><th>Plate No.</th><th>Days Driven</th><th>Trips Covered</th><th>Phone</th><th></th></tr></thead><tbody>${d.length?d.map((drv,i)=>{const st=driverStats(drv.id);return`<tr><td style="color:var(--slate2)">${i+1}</td><td><div class="db-name">${esc(drv.name)}</div><div class="db-sub2">${esc(drv.agency||'')}</div></td><td><span class="tag navy">${esc(drv.vtype||'—')}</span></td><td style="font-family:monospace;font-size:12px;font-weight:600">${esc(drv.plate||'—')}</td><td><span class="stat-badge" style="${st.days>0?'background:rgba(45,125,90,.1);color:#166534':''}">🚗 ${st.days} day${st.days!==1?'s':''}</span></td><td><span class="stat-badge">${st.trips} trip${st.trips!==1?'s':''}</span></td><td style="font-size:11px;color:var(--slate)">${esc(drv.phone||'—')}</td><td><div class="row-acts"><button class="ract" onclick="openDriverModal('${drv.id}')">Edit</button><button class="ract del" onclick="confirmDelDriver('${drv.id}')">Del</button></div></td></tr>`;}).join(''):`<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--slate);font-style:italic">No drivers yet.</td></tr>`}</tbody></table></div>`;
+}
+function renderHotelsDB(){
+  const h=S.hotels;const totalN=h.reduce((s,x)=>s+hotelStats(x.id).nights,0);
+  return `<div class="db-header"><div><div class="db-title">🏨 Hotel Database</div><div class="db-sub">Accommodation registry and nights tracking</div></div><button class="btn-primary" onclick="openHotelModal()">＋ Add Hotel</button></div>
+  <div class="stat-cards"><div class="stat-card"><div class="stat-num">${h.length}</div><div class="stat-lbl">Registered Hotels</div></div><div class="stat-card"><div class="stat-num">${totalN}</div><div class="stat-lbl">Total Nights Booked</div></div><div class="stat-card"><div class="stat-num">${h.filter(x=>hotelStats(x.id).guests.length>0).length}</div><div class="stat-lbl">Hotels with Bookings</div></div><div class="stat-card"><div class="stat-num">${S.trips.filter(t=>t.hotelId).length}</div><div class="stat-lbl">Trips Hotel-Linked</div></div></div>
+  <div class="table-wrap"><table class="db-table"><thead><tr><th>#</th><th>Code</th><th>Hotel</th><th>Total Nights</th><th>Linked Guests</th><th>Phone</th><th></th></tr></thead><tbody>${h.length?h.map((htl,i)=>{const st=hotelStats(htl.id);return`<tr><td style="color:var(--slate2)">${i+1}</td><td><span class="tag navy" style="font-family:monospace;font-weight:700">${esc(htl.code||'—')}</span></td><td><div class="db-name">${esc(htl.name)}</div><div class="db-sub2">${esc(htl.address||'')}</div></td><td><span class="stat-badge" style="${st.nights>0?'background:rgba(201,125,26,.1);color:#92400E':''}">🌙 ${st.nights} night${st.nights!==1?'s':''}</span></td><td style="font-size:11px;color:var(--slate)">${esc(st.guests.join(', '))||'—'}</td><td style="font-size:11px;color:var(--slate)">${esc(htl.phone||'—')}</td><td><div class="row-acts"><button class="ract" onclick="openHotelModal('${htl.id}')">Edit</button><button class="ract del" onclick="confirmDelHotel('${htl.id}')">Del</button></div></td></tr>`;}).join(''):`<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--slate);font-style:italic">No hotels yet.</td></tr>`}</tbody></table></div>`;
+}
+
+// ── CALENDAR ──────────────────────────────────────────────────────────────────
+function renderCalView(va){
+  va.style.cssText='flex:1;display:flex;flex-direction:column;overflow:hidden;';
+  va.innerHTML=buildCalShell();
+}
+function buildCalShell(){
+  const{view:cv,date:cd}=S.cal;
+  return `<div class="cal-wrap"><div class="cal-toolbar"><div class="cal-nav"><button class="cal-nav-today" onclick="calToday()">Today</button><button class="cal-nav-btn" onclick="calNav(-1)">‹</button><button class="cal-nav-btn" onclick="calNav(1)">›</button><div class="cal-period">${calPeriod()}</div></div><div style="display:flex;align-items:center;gap:10px"><button onclick="openCalEventModal()" style="padding:5px 12px;border-radius:7px;border:none;background:var(--coral);color:#fff;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:12px">+ Event</button><div class="cal-views"><button class="cal-vbtn${cv==='month'?' active':''}" onclick="setCalV('month')">Month</button><button class="cal-vbtn${cv==='week'?' active':''}" onclick="setCalV('week')">Week</button><button class="cal-vbtn${cv==='day'?' active':''}" onclick="setCalV('day')">Day</button></div></div></div><div id="calBody" style="flex:1;overflow:hidden;display:flex;flex-direction:column;">${buildCalBody()}</div></div>`;
+}
+function calPeriod(){
+  const{view:cv,date:cd}=S.cal;const d=cd.length>7?cd:cd+'-01';
+  if(cv==='month'){const dt=new Date(d+'T00:00:00');return dt.toLocaleString('en',{month:'long',year:'numeric'});}
+  if(cv==='week'){const ws=weekStart(d);const we=new Date(ws+'T00:00:00');we.setDate(we.getDate()+6);const ws2=new Date(ws+'T00:00:00');if(ws2.getMonth()===we.getMonth())return ws2.toLocaleString('en',{month:'long'})+' '+ws2.getDate()+'–'+we.getDate()+', '+ws2.getFullYear();return fds(ws)+' – '+fds(localDate(we));}
+  if(cv==='day'){const dt=new Date(d+'T00:00:00');return dt.toLocaleString('en',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+  return cd;
+}
+function weekStart(dateStr){const dt=new Date(dateStr+'T00:00:00');dt.setDate(dt.getDate()-dt.getDay());return localDate(dt);}
+function setCalV(v){S.cal.view=v;save();refreshCal();}
+function calNav(dir){
+  const{view:cv}=S.cal;const d=S.cal.date.length>7?S.cal.date:S.cal.date+'-01';
+  if(cv==='month'){const dt=new Date(d+'T00:00:00');dt.setMonth(dt.getMonth()+dir);S.cal.date=localYM(dt)+'-01';}
+  else if(cv==='week'){const ws=weekStart(d);const dt=new Date(ws+'T00:00:00');dt.setDate(dt.getDate()+dir*7);S.cal.date=localDate(dt);}
+  else{const dt=new Date(d+'T00:00:00');dt.setDate(dt.getDate()+dir);S.cal.date=localDate(dt);}
+  save();refreshCal();
+}
+function calToday(){const t=new Date().toISOString();S.cal.date=S.cal.view==='month'?t.slice(0,7)+'-01':t.slice(0,10);save();refreshCal();}
+function refreshCal(){const va=document.getElementById('viewArea');if(va){va.innerHTML='';renderCalView(va);}}
+function buildCalBody(){const{view:cv}=S.cal;if(cv==='month')return renderMonthCal();if(cv==='week')return renderWeekCal();return renderDayCal();}
+function getCalEvts(){
+  const evts=[];
+  S.trips.forEach(t=>{
+    const c=t.color||'#E86845';const n=((t.titleStr||'')+' '+t.guestName).trim();
+    if(t.arrDate)evts.push({date:t.arrDate,time:t.arrTime||'00:01',title:'✈ ARR '+(t.arrFlight||'')+' · '+n,color:'#1A2E4A',tripId:t.id});
+    if(t.depDate)evts.push({date:t.depDate,time:t.depTime||'23:00',title:'🛫 DEP '+(t.depFlight||'')+' · '+n,color:'#374151',tripId:t.id});
+    if(t.checkin)evts.push({date:t.checkin,time:'',title:'🏨 Check-in · '+n,color:'#64748B',tripId:t.id});
+    if(t.checkout)evts.push({date:t.checkout,time:'',title:'🏨 Check-out · '+n,color:'#94A3B8',tripId:t.id});
+    Object.entries(t.days||{}).forEach(([date,day])=>{
+      (day.events||[]).forEach(e=>evts.push({date,time:e.time||'',title:e.title,color:c,tripId:t.id}));
+      (day.meals||[]).forEach(e=>evts.push({date,time:e.time||'',title:'🍽 '+e.title,color:c,tripId:t.id}));
+      (day.activities||[]).forEach(e=>evts.push({date,time:e.time||'',title:'🎯 '+e.title,color:c,tripId:t.id}));
+    });
+  });
+  // Custom calendar events (holidays, special events)
+  (S.calEvents||[]).forEach(e=>{
+    evts.push({date:e.date,time:'',title:e.title,color:e.color||'#6B7280',tripId:null,calEvtId:e.id,allDay:true});
+  });
+  return evts.sort((a,b)=>(a.time||'99:99')<(b.time||'99:99')?-1:1);
+}
+function dateDiff(a,b){return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000);}
+
+function renderMonthCal(){
+  const EH=20,EG=2,ETOP=30; // event height, gap, top offset (below day number)
+  const today=localDate();
+  const cd=S.cal.date.slice(0,7);const[y,m]=cd.split('-').map(Number);
+  // Build days array
+  const first=new Date(y,m-1,1);const days=[];
+  for(let i=first.getDay()-1;i>=0;i--){const d=new Date(y,m-1,-i);days.push({date:localDate(d),cur:false});}
+  for(let i=1;i<=new Date(y,m,0).getDate();i++)days.push({date:`${y}-${String(m).padStart(2,'0')}-${String(i).padStart(2,'0')}`,cur:true});
+  while(days.length%7!==0){const p=days[days.length-1];const nd=new Date(p.date+'T00:00:00');nd.setDate(nd.getDate()+1);days.push({date:localDate(nd),cur:false});}
+  const weeks=[];for(let i=0;i<days.length;i+=7)weeks.push(days.slice(i,i+7));
+  // Trip span bars
+  const tripSpans=S.trips.map(t=>({sd:t.startDate,ed:t.endDate,label:((t.titleStr||'')+' '+t.guestName).trim(),color:t.color||'#E86845',tripId:t.id}));
+  // Timed events (single-day)
+  const timedEvts=getCalEvts().filter(e=>e.time);
+  const dows=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const weekRows=weeks.map(week=>{
+    const wS=week[0].date,wE=week[6].date;
+    // Compute spans for this week
+    const spans=tripSpans.filter(s=>s.ed>=wS&&s.sd<=wE).map(s=>{
+      const cS=Math.max(0,dateDiff(wS,s.sd));
+      const cE=Math.min(6,dateDiff(wS,s.ed));
+      return{...s,cS,cE,span:cE-cS+1,isStart:s.sd>=wS,isEnd:s.ed<=wE};
+    }).sort((a,b)=>a.sd>b.sd?1:-1);
+    // Assign rows (greedy: find first row with no overlap)
+    const placed=[];
+    spans.forEach(s=>{let r=0;while(placed.some(p=>p.row===r&&p.cE>=s.cS&&p.cS<=s.cE))r++;placed.push({...s,row:r});});
+    const nSpanRows=placed.length?Math.max(...placed.map(p=>p.row))+1:0;
+    // Per-cell timed events
+    const cellEvts=week.map(({date})=>timedEvts.filter(e=>e.date===date));
+    const maxTimed=Math.max(0,...cellEvts.map(c=>c.length));
+    const cellH=Math.max(120,ETOP+nSpanRows*(EH+EG)+Math.min(maxTimed,3)*(EH+EG)+10);
+    // Render day cells
+    const cells=week.map(({date,cur},col)=>{
+      const dt=new Date(date+'T00:00:00');
+      const isT=date===today;
+      const ce=cellEvts[col];
+      const show=ce.slice(0,Math.max(0,3-nSpanRows));
+      const moreN=ce.length-show.length;
+      const pillsH=show.map(e=>{if(e.calEvtId)return `<div class="cal-timed-pill" style="background:${e.color};border-left:3px solid rgba(255,255,255,.5)" onclick="event.stopPropagation();editCalEvent('${e.calEvtId}')" title="${esc(e.title)}">★ ${esc(e.title)}</div>`;return `<div class="cal-timed-pill" style="background:${e.color}" onclick="event.stopPropagation();goToTrip('${e.tripId}')" title="${esc(e.title)}"><span class="cal-timed-time">${e.time.slice(0,5)}</span>${esc(e.title)}</div>`;}).join('');
+      const moreH=moreN>0?`<div class="cal-more-lbl" onclick="event.stopPropagation();calClickDate('${date}')">+${moreN} more</div>`:'';
+      return`<div class="cal-mcell${!cur?' cal-other':''}${isT?' cal-today':''}" style="min-height:${cellH}px"><div class="cal-mcell-num${isT?' cal-today-num':''}" onclick="event.stopPropagation();calClickDate('${date}')">${dt.getDate()}</div><div style="margin-top:${nSpanRows*(EH+EG)+2}px">${pillsH}${moreH}</div></div>`;
+    }).join('');
+    // Render spanning bars
+    const W=100/7;
+    const bars=placed.map(s=>{
+      const left=s.cS*W;
+      const width=s.span*W;
+      const top=ETOP+s.row*(EH+EG);
+      const rTL=s.isStart?'4px':'0';const rBL=s.isStart?'4px':'0';
+      const rTR=s.isEnd?'4px':'0';const rBR=s.isEnd?'4px':'0';
+      const padL=s.isStart?7:2;
+      return`<div class="cal-span-bar" style="left:calc(${left}% + ${s.isStart?2:0}px);width:calc(${width}% - ${(s.isStart?2:0)+(s.isEnd?4:0)}px);top:${top}px;background:${s.color};border-radius:${rTL} ${rTR} ${rBR} ${rBL};padding-left:${padL}px" onclick="goToTrip('${s.tripId}')" title="${esc(s.label)}">${s.isStart?esc(s.label):'&#9658; '+esc(s.label)}</div>`;
+    }).join('');
+    return`<div class="cal-week-row">${cells}<div class="cal-span-layer">${bars}</div></div>`;
+  }).join('');
+  return`<div class="cal-month-outer"><div class="cal-dow-header">${dows.map(d=>`<div class="cal-dow">${d}</div>`).join('')}</div>${weekRows}</div>`;
+}
+function calClickDate(date){S.cal.view='day';S.cal.date=date;save();refreshCal();}
+function renderWeekCal(){
+  const HP=54;const SH=6;const EH=23;const TH=(EH-SH)*HP;
+  const d=S.cal.date.length>7?S.cal.date:S.cal.date+'-01';
+  const ws=weekStart(d);
+  const days=[0,1,2,3,4,5,6].map(i=>{const dt=new Date(ws+'T00:00:00');dt.setDate(dt.getDate()+i);return localDate(dt);});
+  const evts=getCalEvts();const today=localDate();
+  const headCols=days.map(date=>{const dt=new Date(date+'T00:00:00');const isT=date===today;return`<div class="cal-wh-day"><div class="cal-wh-dow">${dt.toLocaleString('en',{weekday:'short'})}</div><div class="cal-wh-num${isT?' today-num':''}">${dt.getDate()}</div></div>`;}).join('');
+  const timeCol=Array.from({length:EH-SH},(_,i)=>`<div class="cal-time-lbl">${SH+i}:00</div>`).join('');
+  const hlines=Array.from({length:EH-SH},(_,i)=>`<div class="cal-hour-line" style="top:${i*HP}px"></div><div class="cal-hr-half" style="top:${i*HP+HP/2}px"></div>`).join('');
+  const dayCols=days.map(date=>{
+    const de=evts.filter(e=>e.date===date&&e.time);
+    const chips=de.map(e=>{const[h,mi]=(e.time||SH+':00').split(':').map(Number);const ch=Math.max(SH,Math.min(h,EH-1));const top=(ch-SH+mi/60)*HP;return`<div class="cal-wevt" style="top:${top}px;background:${e.color}" onclick="goToTrip('${e.tripId}')" title="${esc(e.title)}">${esc(e.title)}</div>`;}).join('');
+    return`<div class="cal-day-col" style="height:${TH}px">${hlines}${chips}</div>`;
+  }).join('');
+  return`<div class="cal-week-wrap"><div class="cal-week-head"><div class="cal-wh-spacer"></div>${headCols}</div><div class="cal-week-body"><div class="cal-time-col">${timeCol}</div><div class="cal-day-cols" style="grid-template-columns:repeat(7,1fr)">${dayCols}</div></div></div>`;
+}
+function renderDayCal(){
+  const HP=60;const SH=6;const EH=23;const TH=(EH-SH)*HP;
+  const d=S.cal.date.length>7?S.cal.date:S.cal.date+'-01';
+  const today=localDate();const isT=d===today;
+  const dt=new Date(d+'T00:00:00');
+  const evts=getCalEvts().filter(e=>e.date===d&&e.time);
+  const timeCol=Array.from({length:EH-SH},(_,i)=>`<div class="cal-time-lbl" style="height:${HP}px">${SH+i}:00</div>`).join('');
+  const hlines=Array.from({length:EH-SH},(_,i)=>`<div class="cal-hour-line" style="top:${i*HP}px"></div><div class="cal-hr-half" style="top:${i*HP+HP/2}px"></div>`).join('');
+  const chips=evts.map(e=>{const[h,mi]=(e.time||SH+':00').split(':').map(Number);const ch=Math.max(SH,Math.min(h,EH-1));const top=(ch-SH+mi/60)*HP;return`<div class="cal-wevt" style="top:${top}px;height:44px;left:4px;right:4px;background:${e.color}" onclick="goToTrip('${e.tripId}')" title="${esc(e.title)}">${esc(e.title)}</div>`;}).join('');
+  return`<div class="cal-week-wrap"><div class="cal-week-head"><div class="cal-wh-spacer"></div><div class="cal-wh-day" style="flex:1"><div class="cal-wh-dow">${dt.toLocaleString('en',{weekday:'long'})}</div><div class="cal-wh-num${isT?' today-num':''}">${dt.getDate()}</div></div></div><div class="cal-week-body"><div class="cal-time-col">${timeCol}</div><div class="cal-day-cols" style="grid-template-columns:1fr"><div class="cal-day-col" style="height:${TH}px">${hlines}${chips}</div></div></div></div>`;
+}
+function goToTrip(tripId){if(!tripId)return;S.activeTripId=tripId;setView('trips');}
+
+// ── TRIP MODAL ────────────────────────────────────────────────────────────────
+function openTripModal(edit=false){
+  X.tripMode=edit?'edit':'new';const t=edit?gAct():null;
+  document.getElementById('tripMT').textContent=edit?'Edit Trip':'New Guest Trip';
+  document.getElementById('tripDel').style.display=edit?'':'none';
+  const gsel=document.getElementById('f_guestId');
+  gsel.innerHTML='<option value="">— Select existing guest or type name below —</option>'+S.guests.map(g=>`<option value="${g.id}">${g.title||''} ${g.firstName} ${g.lastName}${g.org?' · '+g.org:''}</option>`).join('');
+  sv('f_guestId',t?.guestId||'');sv('f_title',t?.titleStr||'Prof');sv('f_guestName',t?.guestName||'');sv('f_purpose',t?.purpose||'');sv('f_org',t?.org||'');sv('f_startDate',t?.startDate||'');sv('f_endDate',t?.endDate||'');
+  selClrByVal(t?.color||'#E86845');om('tripModal');
+}
+function onGuestSelect(){
+  const gid=gv('f_guestId');if(!gid)return;const g=S.guests.find(x=>x.id===gid);if(!g)return;
+  sv('f_title',g.title||'Dr');sv('f_guestName',(g.firstName+' '+g.lastName).trim());sv('f_org',g.org||'');
+}
+function saveTrip(){
+  const name=gv('f_guestName').trim(),s=gv('f_startDate'),e=gv('f_endDate');
+  if(!name||!s||!e){alert('Guest name and dates are required');return;}if(e<s){alert('Departure must be after arrival');return;}
+  const color=document.querySelector('.cswatch.sel')?.dataset.c||'#E86845';
+  if(X.tripMode==='new'){
+    const t={id:uid(),guestId:gv('f_guestId'),titleStr:gv('f_title'),guestName:name,purpose:gv('f_purpose').trim(),org:gv('f_org').trim(),startDate:s,endDate:e,color,days:{}};
+    const g=S.guests.find(x=>x.id===t.guestId);
+    if(g)Object.assign(t,{nationality:g.nationality,dietary:g.dietary,email:g.email,phone:g.phone,passportNo:g.ppNo});
+    ensureDays(t);S.trips.push(t);S.activeTripId=t.id;
+  }else{
+    const t=gAct();Object.assign(t,{guestId:gv('f_guestId'),titleStr:gv('f_title'),guestName:name,purpose:gv('f_purpose').trim(),org:gv('f_org').trim(),startDate:s,endDate:e,color});ensureDays(t);
+  }
+  save();cm('tripModal');render();
+}
+function deleteTrip(fromModal=false){
+  const t=gAct();if(!t)return;if(!confirm('Delete trip for '+t.guestName+'?'))return;
+  S.trips=S.trips.filter(x=>x.id!==t.id);S.activeTripId=S.trips[0]?.id||null;
+  save();if(fromModal)cm('tripModal');render();
+}
+
+// ── GUEST CARD MODAL ──────────────────────────────────────────────────────────
+function openGC(){
+  const t=gAct();if(!t)return;
+  document.getElementById('gcModalSub').textContent=((t.titleStr||'')+' '+t.guestName).trim();
+  const hselOpts='<option value="">— Select hotel or enter manually —</option>'+S.hotels.map(h=>`<option value="${h.id}">${h.code} · ${h.name}</option>`).join('');
+  document.getElementById('gc_hotelId').innerHTML=hselOpts;
+  document.getElementById('gc_hotelId2').innerHTML=hselOpts;
+  [['gc_nat','nationality'],['gc_ppNo','passportNo'],['gc_ppExp','passportExp'],['gc_email','email'],['gc_phone','phone'],['gc_dietary','dietary'],['gc_dietNotes','dietaryNotes'],
+   ['gc_arrFlt','arrFlight'],['gc_arrCar','arrCarrier'],['gc_arrFrom','arrFrom'],['gc_arrDate','arrDate'],['gc_arrTime','arrTime'],['gc_arrTmn','arrTerminal'],
+   ['gc_depFlt','depFlight'],['gc_depCar','depCarrier'],['gc_depTo','depTo'],['gc_depDate','depDate'],['gc_depTime','depTime'],['gc_depTmn','depTerminal'],
+   ['gc_hotel','hotel'],['gc_room','room'],['gc_cin','checkin'],['gc_cout','checkout'],['gc_eCheckin','earlyCheckin'],['gc_lCheckout','lateCheckout'],['gc_hotelNotes','hotelNotes'],['gc_hotelId','hotelId'],
+   ['gc_hotel2','hotel2'],['gc_room2','room2'],['gc_cin2','checkin2'],['gc_cout2','checkout2'],['gc_eCheckin2','earlyCheckin2'],['gc_lCheckout2','lateCheckout2'],['gc_hotelNotes2','hotelNotes2'],['gc_hotelId2','hotelId2'],
+   ['gc_spTitle','spouseTitle'],['gc_spName','spouseName'],['gc_spDiet','spouseDietary'],['gc_spPP','spousePassport'],['gc_spNat','spouseNationality'],['gc_spNotes','spouseNotes']
+  ].forEach(([id,key])=>sv(id,t[key]||''));
+  document.getElementById('gc_hasSpouse').checked=!!t.hasSpouse;tglSpouse();
+  document.getElementById('gc_hasHotel2').checked=!!t.hasHotel2;tglHotel2();
+  // Show spouse sync button if linked guest has spouse info
+  const lg=S.guests.find(x=>x.id===t.guestId);
+  const syncBtn=document.getElementById('spouseSyncBtn');
+  if(syncBtn)syncBtn.style.display=(lg?.spouseName&&!t.spouseName)?'block':'none';
+  X.companions=(t.companions||[]).map(c=>({...c}));renderComps();om('gcModal');
+}
+function syncSpouseFromDB(){
+  const t=gAct();if(!t)return;
+  const lg=S.guests.find(x=>x.id===t.guestId);if(!lg?.spouseName)return;
+  document.getElementById('gc_hasSpouse').checked=true;tglSpouse();
+  sv('gc_spTitle','');sv('gc_spName',lg.spouseName);sv('gc_spDiet',lg.spouseDietary||'');
+  sv('gc_spPP',lg.spousePassport||'');sv('gc_spNat',lg.spouseNationality||'');sv('gc_spNotes',lg.spouseNotes||'');
+  document.getElementById('spouseSyncBtn').style.display='none';
+}
+function tglHotel2(){document.getElementById('hotel2Fields').style.display=document.getElementById('gc_hasHotel2').checked?'block':'none';}
+function onHotelSelect2(){const hid=gv('gc_hotelId2');if(!hid)return;const h=S.hotels.find(x=>x.id===hid);if(!h)return;sv('gc_hotel2',h.name);sv('gc_hotelNotes2',h.address||'');}
+function onHotelSelect(){const hid=gv('gc_hotelId');if(!hid)return;const h=S.hotels.find(x=>x.id===hid);if(!h)return;sv('gc_hotel',h.name);sv('gc_hotelNotes',h.address||'');}
+function saveGC(){
+  const t=gAct();if(!t)return;
+  [['gc_nat','nationality'],['gc_ppNo','passportNo'],['gc_ppExp','passportExp'],['gc_email','email'],['gc_phone','phone'],['gc_dietary','dietary'],['gc_dietNotes','dietaryNotes'],
+   ['gc_arrFlt','arrFlight'],['gc_arrCar','arrCarrier'],['gc_arrFrom','arrFrom'],['gc_arrDate','arrDate'],['gc_arrTime','arrTime'],['gc_arrTmn','arrTerminal'],
+   ['gc_depFlt','depFlight'],['gc_depCar','depCarrier'],['gc_depTo','depTo'],['gc_depDate','depDate'],['gc_depTime','depTime'],['gc_depTmn','depTerminal'],
+   ['gc_hotel','hotel'],['gc_room','room'],['gc_cin','checkin'],['gc_cout','checkout'],['gc_eCheckin','earlyCheckin'],['gc_lCheckout','lateCheckout'],['gc_hotelNotes','hotelNotes'],['gc_hotelId','hotelId'],
+   ['gc_hotel2','hotel2'],['gc_room2','room2'],['gc_cin2','checkin2'],['gc_cout2','checkout2'],['gc_eCheckin2','earlyCheckin2'],['gc_lCheckout2','lateCheckout2'],['gc_hotelNotes2','hotelNotes2'],['gc_hotelId2','hotelId2'],
+   ['gc_spTitle','spouseTitle'],['gc_spName','spouseName'],['gc_spDiet','spouseDietary'],['gc_spPP','spousePassport'],['gc_spNat','spouseNationality'],['gc_spNotes','spouseNotes']
+  ].forEach(([id,key])=>{t[key]=gv(id);});
+  t.hasSpouse=document.getElementById('gc_hasSpouse').checked;
+  t.hasHotel2=document.getElementById('gc_hasHotel2').checked;
+  t.companions=X.companions.filter(c=>c.name);
+  save();cm('gcModal');const gca=document.getElementById('gcArea');if(gca)gca.innerHTML=renderGC(t);renderSidebar();
+}
+function tglSpouse(){
+  const chk=document.getElementById('gc_hasSpouse').checked;
+  document.getElementById('spouseFields').style.display=chk?'block':'none';
+  // Show sync button if spouse just toggled on and guest DB has spouse
+  const t=gAct();const lg=S.guests.find(x=>x.id===t?.guestId);
+  const btn=document.getElementById('spouseSyncBtn');
+  if(btn)btn.style.display=(chk&&lg?.spouseName&&!gv('gc_spName'))?'block':'none';
+}
+function renderComps(){
+  const el=document.getElementById('companionsList');if(!el)return;
+  if(!X.companions||!X.companions.length){el.innerHTML='<div style="font-size:12px;color:var(--slate);font-style:italic;padding:3px 0">No additional companions.</div>';return;}
+  el.innerHTML=X.companions.map((c,i)=>`<div style="display:flex;align-items:center;gap:7px;background:#fff;border-radius:7px;padding:7px 9px;border:1px solid var(--border);margin-bottom:5px"><div style="flex:1"><div style="font-size:12px;font-weight:600">${esc(c.name||'—')}</div><div style="font-size:11px;color:var(--slate)">${esc([c.role,c.dietary].filter(Boolean).join(' · ')||'—')}</div></div><button class="ibtn" onclick="editComp(${i})">✏️</button><button class="ibtn del" onclick="rmComp(${i})">✕</button></div>`).join('');
+}
+function addComp(){X.companions=X.companions||[];X.companions.push({id:uid(),name:'',role:'',dietary:''});renderComps();editComp(X.companions.length-1);}
+function editComp(i){const c=X.companions[i];const n=prompt('Name:',c.name||'');if(n===null)return;c.name=n;const r=prompt('Role:',c.role||'');if(r!==null)c.role=r;const d=prompt('Dietary:',c.dietary||'');if(d!==null)c.dietary=d;renderComps();}
+function rmComp(i){X.companions.splice(i,1);renderComps();}
+
+// ── ITEM MODAL ────────────────────────────────────────────────────────────────
+const SLBL={events:'Event',meals:'Meal',activities:'Activity'};
+// ── Event templates (Feature 6) ──────────────────────────────────────────────
+const DEFAULT_TPLS={
+  events:[
+    {title:'Airport Pickup',time:'',location:'Changi Airport',notes:'',status:'confirmed'},
+    {title:'Airport Drop-off',time:'',location:'Hotel Lobby Pickup',notes:'',status:'confirmed'},
+    {title:'Opening Lecture',time:'09:00',location:'',notes:'',status:'confirmed'},
+    {title:'Lab / Facility Visit',time:'14:00',location:'',notes:'',status:'confirmed'},
+    {title:'Campus Tour',time:'15:00',location:'Main Campus',notes:'',status:'confirmed'},
+    {title:'MOU Signing',time:'10:00',location:'Board Room',notes:'',status:'confirmed'},
+    {title:'PhD Workshop',time:'10:00',location:'Seminar Room',notes:'',status:'confirmed'},
+    {title:'Research Seminar',time:'10:00',location:'Auditorium',notes:'',status:'confirmed'},
+    {title:'Q&A / Panel Discussion',time:'15:00',location:'',notes:'',status:'confirmed'},
+  ],
+  meals:[
+    {title:'Welcome Lunch',time:'12:30',location:'Faculty Club',notes:'',status:'confirmed'},
+    {title:'Welcome Dinner',time:'19:00',location:'',notes:'',status:'confirmed'},
+    {title:'Farewell Lunch',time:'12:30',location:'Faculty Club',notes:'',status:'confirmed'},
+    {title:'Farewell Dinner',time:'19:00',location:'',notes:'',status:'confirmed'},
+    {title:'Working Lunch',time:'12:30',location:'',notes:'',status:'confirmed'},
+    {title:'Faculty Lunch',time:'12:00',location:'Staff Canteen',notes:'',status:'confirmed'},
+    {title:'Research Team Dinner',time:'19:00',location:'',notes:'',status:'confirmed'},
+  ],
+  activities:[
+    {title:'Gardens by the Bay',time:'16:00',location:'Gardens by the Bay',notes:'',status:'pending'},
+    {title:'Sentosa Day Trip',time:'14:00',location:'Sentosa Island',notes:'',status:'pending'},
+    {title:'Heritage Trail — Kampong Glam',time:'16:00',location:'Arab Street',notes:'',status:'pending'},
+    {title:'Orchard Road Shopping',time:'15:00',location:'Orchard Road',notes:'',status:'pending'},
+    {title:'City Tour',time:'14:00',location:'Singapore City',notes:'',status:'pending'},
+    {title:'Botanical Gardens Walk',time:'10:00',location:'Singapore Botanic Gardens',notes:'',status:'pending'},
+  ]
+};
+function getTpls(){return S.templates||DEFAULT_TPLS;}
+
+function populateItemModal(sec){
+  const tplSel=document.getElementById('i_tpl');
+  const tpls=getTpls()[sec]||[];
+  tplSel.innerHTML='<option value="">— Select a template to pre-fill —</option>'+tpls.map((t,i)=>`<option value="${i}">${t.title}${t.time?' · '+t.time:''}</option>`).join('');
+  // Host/driver dropdowns
+  const hsel=document.getElementById('i_hostId');
+  const dsel=document.getElementById('i_driverId');
+  hsel.innerHTML='<option value="">— Inherit day host —</option>'+S.hosts.map(h=>`<option value="${h.id}">${h.name}</option>`).join('');
+  dsel.innerHTML='<option value="">— Inherit day driver —</option>'+S.drivers.map(d=>`<option value="${d.id}">${d.name}${d.vtype?' · '+d.vtype:''}</option>`).join('');
+  populateVenueSelect();
+}
+function applyItemTemplate(){
+  const sec=X.iSec; const idx=parseInt(gv('i_tpl'));
+  if(isNaN(idx))return;
+  const tpl=(getTpls()[sec]||[])[idx]; if(!tpl)return;
+  sv('i_title',tpl.title);sv('i_time',tpl.time);sv('i_loc',tpl.location);sv('i_notes',tpl.notes);sv('i_status',tpl.status||'confirmed');
+}
+function onItemHDSel(type){
+  const id=gv(type==='host'?'i_hostId':'i_driverId');
+  // just store id — name shown via DB lookup
+}
+
+function openAddItem(date,sec){
+  X={...X,iMode:'add',iDate:date,iSec:sec};
+  document.getElementById('iMT').textContent='Add '+SLBL[sec];
+  document.getElementById('iMS').textContent=fd(date);
+  ['i_title','i_time','i_loc','i_notes'].forEach(id=>sv(id,''));
+  sv('i_status','confirmed');sv('i_tpl','');sv('i_hostId','');sv('i_driverId','');
+  document.getElementById('iDel').style.display='none';
+  populateItemModal(sec);
+  om('itemModal');
+}
+function openEditItem(date,sec,idx){
+  const item=gAct()?.days[date]?.[sec]?.[idx];if(!item)return;
+  X={...X,iMode:'edit',iDate:date,iSec:sec,iIdx:idx};
+  document.getElementById('iMT').textContent='Edit '+SLBL[sec];
+  document.getElementById('iMS').textContent=fd(date);
+  sv('i_title',item.title);sv('i_time',item.time);sv('i_loc',item.location);
+  sv('i_notes',item.notes);sv('i_status',item.status||'confirmed');sv('i_tpl','');
+  sv('i_hostId',item.hostId||'');sv('i_driverId',item.driverId||'');
+  document.getElementById('iDel').style.display='';
+  populateItemModal(sec);
+  om('itemModal');
+}
+function saveItem(){
+  const title=gv('i_title').trim();if(!title){alert('Title required');return;}
+  const t=gAct();const{iDate,iSec,iMode,iIdx}=X;
+  const hid=gv('i_hostId'); const did=gv('i_driverId');
+  const h=S.hosts.find(x=>x.id===hid); const d=S.drivers.find(x=>x.id===did);
+  const item={id:uid(),title,time:gv('i_time'),location:gv('i_loc').trim(),
+    notes:gv('i_notes').trim(),status:gv('i_status'),
+    hostId:hid||'',host:h?.name||'',driverId:did||'',driver:d?.name||''};
+  if(!t.days[iDate][iSec])t.days[iDate][iSec]=[];
+  if(iMode==='add')t.days[iDate][iSec].push(item);else t.days[iDate][iSec][iIdx]=item;
+  save();cm('itemModal');renderTripContent();togDay(iDate,true);
+}
+function delItem(){if(!confirm('Delete?'))return;const t=gAct();t.days[X.iDate][X.iSec].splice(X.iIdx,1);save();cm('itemModal');renderTripContent();togDay(X.iDate,true);}
+function doDelItem(date,sec,idx){X={...X,iDate:date,iSec:sec,iIdx:idx};delItem();}
+
+// ── HD MODAL ──────────────────────────────────────────────────────────────────
+function openHD(date,type){
+  const t=gAct();if(!t)return;const day=t.days[date]||{};X={...X,hdDate:date,hdType:type};
+  const lbl=type==='host'?'Host':'Driver';
+  document.getElementById('hdMT').textContent=(type==='host'?'🧑‍💼':'🚗')+' Assign '+lbl;
+  document.getElementById('hdMS').textContent=fd(date);document.getElementById('hdLabel').textContent=lbl+' Name';
+  const dbSel=document.getElementById('hd_dbSel');
+  if(type==='host'){dbSel.innerHTML='<option value="">— Select or enter manually —</option>'+S.hosts.map(h=>`<option value="${h.id}">${h.name}${h.dept?' · '+h.dept:''}</option>`).join('');sv('hd_dbSel',day.hostId||'');}
+  else{dbSel.innerHTML='<option value="">— Select or enter manually —</option>'+S.drivers.map(d=>`<option value="${d.id}">${d.name}${d.vtype?' · '+d.vtype+' '+d.plate:''}</option>`).join('');sv('hd_dbSel',day.driverId||'');}
+  sv('hd_name',day[type]||'');sv('hd_contact',day[type+'Contact']||'');om('hdModal');
+}
+function onHDSelect(){
+  const sel=gv('hd_dbSel');if(!sel)return;
+  if(X.hdType==='host'){const h=S.hosts.find(x=>x.id===sel);if(!h)return;sv('hd_name',h.name);sv('hd_contact',h.phone||h.email||'');}
+  else{const d=S.drivers.find(x=>x.id===sel);if(!d)return;sv('hd_name',d.name);sv('hd_contact',d.phone||'');}
+}
+function saveHD(){
+  const t=gAct();const{hdDate,hdType}=X;const day=t.days[hdDate];const dbId=gv('hd_dbSel');
+  if(hdType==='host'){day.hostId=dbId;day.host=gv('hd_name').trim();day.hostContact=gv('hd_contact').trim();}
+  else{day.driverId=dbId;day.driver=gv('hd_name').trim();day.driverContact=gv('hd_contact').trim();}
+  save();cm('hdModal');renderTripContent();togDay(hdDate,true);
+}
+
+// ── GUEST DB ──────────────────────────────────────────────────────────────────
+function openGuestDBModal(id){S.editGuestId=id||null;setView('editGuest');}
+
+function renderEditGuestPage(va){
+  va.style.cssText='flex:1;overflow-y:auto;background:var(--bg);';
+  const id=S.editGuestId||null;
+  const g=id?S.guests.find(x=>x.id===id):null;
+  X.gdbId=id;X.gdbPhoto=g?.photo||null;
+  const isEdit=!!g;
+  const eq=(k,d)=>esc(g?.[k]||d||'');
+  const sel=(k,opts,def)=>opts.map(o=>'<option'+(((g?.[k]||def)===o)?' selected':'')+'>'+o+'</option>').join('');
+  const fullName=g?((g.title&&g.title!=='—'?g.title+' ':'')+g.firstName+' '+g.lastName).trim():'New Guest';
+  const hasSp=!!(g?.spouseName);
+
+  va.innerHTML=`<div style="max-width:840px;margin:0 auto;padding:24px 28px 56px">
+
+  <!-- Page header -->
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap">
+    <div>
+      <button onclick="setView('guests')" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--slate);background:none;border:none;cursor:pointer;padding:0 0 8px 0;letter-spacing:.02em">‹ Guest Database</button>
+      <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:26px;color:var(--navy)">${isEdit?'Edit Guest':'Add Guest'}</div>
+      <div style="font-size:12px;color:var(--slate);margin-top:3px">${isEdit?'Update the information for '+fullName:'New guest database entry'}</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;padding-top:4px">
+      ${isEdit?'<button onclick="_del(event)" data-fn="confirmDelGDB" data-id="'+id+'" class="btn-danger">Delete Guest</button>':''}
+      <button onclick="setView('guests')" class="btn-can">Cancel</button>
+      <button onclick="saveGuestDB()" class="btn-save" style="padding:9px 22px">Save Guest</button>
+    </div>
+  </div>
+
+  <!-- PERSONAL INFORMATION -->
+  <div style="background:#fff;border-radius:14px;border:1px solid var(--border);padding:22px 24px;margin-bottom:16px;box-shadow:var(--shadow)">
+    <div class="gdb-section-title">Personal Information</div>
+    <div style="display:grid;grid-template-columns:96px 1fr;gap:16px;align-items:start;margin-bottom:14px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+        <div class="gdb-photo-wrap" id="gdb_photoWrap" onclick="document.getElementById('gdb_photoInput').click()" style="width:88px;height:88px;cursor:pointer">
+          <img id="gdb_photoImg" src="${g?.photo||''}" style="display:${g?.photo?'block':'none'};width:100%;height:100%;object-fit:cover;position:absolute;inset:0">
+          <div id="gdb_photoPlaceholder" style="display:${g?.photo?'none':'flex'};flex-direction:column;align-items:center"><span style="font-size:22px">📷</span><div class="gdb-photo-lbl">Photo</div></div>
+        </div>
+        <input type="file" id="gdb_photoInput" accept="image/*" style="display:none" onchange="onGuestPhoto(event)">
+        <button id="gdb_photoRemove" onclick="removeGuestPhoto()" style="display:${g?.photo?'block':'none'};font-size:10px;color:var(--coral);border:none;background:none;cursor:pointer;padding:0">✕ Remove</button>
+      </div>
+      <div style="display:grid;grid-template-columns:110px 1fr 1fr;gap:10px">
+        <div class="fld"><label>Title</label><select id="gdb_title" oninput="refreshGDBDiet()">${sel('title',['Prof','Assoc Prof','Dr','Mr','Mrs','Ms','—'],'Prof')}</select></div>
+        <div class="fld"><label>First Name *</label><input id="gdb_first" value="${eq('firstName')}" placeholder="Douglas" oninput="refreshGDBDiet()"/></div>
+        <div class="fld"><label>Last Name *</label><input id="gdb_last" value="${eq('lastName')}" placeholder="Petersen" oninput="refreshGDBDiet()"/></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+      <div class="fld"><label>Country</label><input id="gdb_nat" value="${eq('nationality')}" placeholder="e.g. USA, Singapore"/></div>
+      <div class="fld"><label>Spouse / Partner</label><input id="gdb_spouse" value="${eq('spouseName')}" placeholder="e.g. Sis Myrna" oninput="refreshGDBDiet()"/></div>
+      <div class="fld"><label>Passport No.</label><input id="gdb_ppNo" value="${eq('ppNo')}" placeholder="A12345678"/></div>
+    </div>
+    <div class="fld" style="margin-bottom:12px"><label>Title / Position</label>
+      <textarea id="gdb_org" placeholder="e.g. Professor Emeritus, School of Theology & Ministry, Vanguard University" style="min-height:60px;resize:vertical">${eq('org')}</textarea>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <div class="fld"><label>Email</label><input id="gdb_email" value="${eq('email')}" placeholder="email@university.edu"/></div>
+      <div class="fld"><label>Phone / WhatsApp</label><input id="gdb_phone" value="${eq('phone')}" placeholder="+1 617 000 0000"/></div>
+      <div class="fld"><label>Notes</label><input id="gdb_notes" value="${eq('notes')}" placeholder="Any additional info"/></div>
+    </div>
+  </div>
+
+  <!-- DIETARY & PREFERENCES -->
+  <div style="background:#fff;border-radius:14px;border:1px solid var(--border);padding:22px 24px;margin-bottom:20px;box-shadow:var(--shadow)">
+    <div class="gdb-section-title">Dietary &amp; Preferences</div>
+    <div style="font-size:12px;color:var(--slate);margin-bottom:16px">Fill dietary info separately for each person attending. Sections appear automatically as you add a spouse or additional guests above.</div>
+
+    <!-- Guest block -->
+    <div class="diet-block" style="margin-bottom:12px">
+      <div class="diet-who"><span class="diet-badge guest-b">Guest</span><span class="diet-who-name" id="gdb_dietGuestName">${fullName}</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="fld"><label>Food Allergen / Dislike</label><textarea id="gdb_allergen" placeholder="e.g. DP: No tofu, small seeds..." style="min-height:80px;resize:vertical">${eq('allergen')}</textarea></div>
+        <div class="fld"><label>Food Preference</label><textarea id="gdb_foodPref" placeholder="e.g. White meat, no pork..." style="min-height:80px;resize:vertical">${eq('foodPref')}</textarea></div>
+        <div class="fld"><label>Hot Beverage</label><input id="gdb_bevHot" value="${eq('bevHot')}" placeholder="e.g. Coffee, Tea"/></div>
+        <div class="fld"><label>Cold Beverage</label><input id="gdb_bevCold" value="${eq('bevCold')}" placeholder="e.g. Sparkling water"/></div>
+        <div class="fld" style="grid-column:1/-1"><label>Server / Host Note <span class="for-srv">FOR SERVERS</span></label>
+          <input id="gdb_serverNote" value="${eq('serverNote')}" class="srv-input" placeholder="e.g. No red meat – very strict. Keep away from shellfish."/></div>
+      </div>
+    </div>
+
+    <!-- Spouse block -->
+    <div class="diet-block" id="gdb_spouseDietBlock" style="display:${hasSp?'block':'none'}">
+      <div class="diet-who"><span class="diet-badge spouse-b">Spouse</span><span class="diet-who-name" id="gdb_dietSpouseName">${eq('spouseName')}</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="fld"><label>Food Allergen / Dislike</label><textarea id="gdb_spAllergen" placeholder="e.g. No seafood, no nuts..." style="min-height:80px;resize:vertical">${eq('spAllergen')}</textarea></div>
+        <div class="fld"><label>Food Preference</label><textarea id="gdb_spFoodPref" placeholder="e.g. White meat, no pork..." style="min-height:80px;resize:vertical">${eq('spFoodPref')}</textarea></div>
+        <div class="fld"><label>Hot Beverage</label><input id="gdb_spBevHot" value="${eq('spBevHot')}" placeholder="e.g. Coffee, Tea"/></div>
+        <div class="fld"><label>Cold Beverage</label><input id="gdb_spBevCold" value="${eq('spBevCold')}" placeholder="e.g. Sparkling water"/></div>
+        <div class="fld" style="grid-column:1/-1"><label>Server / Host Note <span class="for-srv">FOR SERVERS</span></label>
+          <input id="gdb_spServerNote" value="${eq('spServerNote')}" class="srv-input" placeholder="e.g. Vegetarian – strict."/></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div style="display:flex;justify-content:flex-end;gap:8px">
+    ${isEdit?'<button onclick="_del(event)" data-fn="confirmDelGDB" data-id="'+id+'" class="btn-danger" style="margin-right:auto">Delete Guest</button>':''}
+    <button onclick="setView('guests')" class="btn-can">Cancel</button>
+    <button onclick="saveGuestDB()" class="btn-save" style="padding:9px 22px">Save Guest</button>
+  </div>
+
+</div>`;
+}
+function refreshGDBDiet(){
+  const sp=gv('gdb_spouse').trim();
+  const fn=gv('gdb_first').trim();const ln=gv('gdb_last').trim();
+  const t=gv('gdb_title');
+  document.getElementById('gdb_dietGuestName').textContent=((t&&t!=='—'?t+' ':'')+fn+' '+ln).trim();
+  const spBlock=document.getElementById('gdb_spouseDietBlock');
+  document.getElementById('gdb_dietSpouseName').textContent=sp;
+  spBlock.style.display=sp?'block':'none';
+}
+function setGuestPhoto(src){
+  const img=document.getElementById('gdb_photoImg');
+  const ph=document.getElementById('gdb_photoPlaceholder');
+  const pr=document.getElementById('gdb_photoRemove');
+  if(src){img.src=src;img.style.display='block';ph.style.display='none';pr.style.display='block';}
+  else{img.src='';img.style.display='none';ph.style.display='flex';pr.style.display='none';}
+}
+function onGuestPhoto(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{X.gdbPhoto=ev.target.result;setGuestPhoto(X.gdbPhoto);};
+  reader.readAsDataURL(file);
+}
+function removeGuestPhoto(){
+  X.gdbPhoto=null;setGuestPhoto(null);
+  document.getElementById('gdb_photoInput').value='';
+}
+function saveGuestDB(){
+  const fn=gv('gdb_first').trim(),ln=gv('gdb_last').trim();if(!fn&&!ln){alert('Name required');return;}
+  const data={
+    title:gv('gdb_title'),firstName:fn,lastName:ln,
+    org:gv('gdb_org').trim(),nationality:gv('gdb_nat').trim(),
+    email:gv('gdb_email').trim(),phone:gv('gdb_phone').trim(),
+    ppNo:gv('gdb_ppNo').trim(),notes:gv('gdb_notes').trim(),
+    spouseName:gv('gdb_spouse').trim(),
+    photo:X.gdbPhoto||null,
+    allergen:gv('gdb_allergen').trim(),foodPref:gv('gdb_foodPref').trim(),
+    bevHot:gv('gdb_bevHot').trim(),bevCold:gv('gdb_bevCold').trim(),serverNote:gv('gdb_serverNote').trim(),
+    spAllergen:gv('gdb_spAllergen').trim(),spFoodPref:gv('gdb_spFoodPref').trim(),
+    spBevHot:gv('gdb_spBevHot').trim(),spBevCold:gv('gdb_spBevCold').trim(),spServerNote:gv('gdb_spServerNote').trim()
+  };
+  if(X.gdbId)Object.assign(S.guests.find(x=>x.id===X.gdbId),data);else S.guests.push({id:uid(),...data});
+  save();setView('guests');
+}
+function delGuestDB(){const g=S.guests.find(x=>x.id===X.gdbId);if(!g)return;if(!confirm('Delete '+g.firstName+' '+g.lastName+'?'))return;S.guests=S.guests.filter(x=>x.id!==X.gdbId);save();setView('guests');}
+function confirmDelGDB(id){X.gdbId=id;delGuestDB();}
+
+// ── HOST DB ───────────────────────────────────────────────────────────────────
+// ── HOST full-page edit ───────────────────────────────────────────────────────
+function openHostModal(id){S.editHostId=id||null;setView('editHost');}
+function renderEditHostPage(va){
+  va.style.cssText='flex:1;overflow-y:auto;background:var(--bg);';
+  const id=S.editHostId||null;const h=id?S.hosts.find(x=>x.id===id):null;
+  X.hstId=id;const isEdit=!!h;const eq=(k)=>esc(h?.[k]||'');
+  const hs=hostStats(id||'');
+  va.innerHTML=`<div style="max-width:720px;margin:0 auto;padding:24px 28px 56px">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap">
+    <div>
+      <button onclick="setView('hosts')" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--slate);background:none;border:none;cursor:pointer;padding:0 0 8px 0">‹ Host Database</button>
+      <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:26px;color:var(--navy)">${isEdit?'Edit Host':'Add Host'}</div>
+      <div style="font-size:12px;color:var(--slate);margin-top:3px">${isEdit?eq('name'):'New host record'}</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;padding-top:4px">
+      ${isEdit?'<button onclick="_del(event)" data-fn="confirmDelHost" data-id="'+id+'" class="btn-danger">Delete</button>':''}
+      <button onclick="setView('hosts')" class="btn-can">Cancel</button>
+      <button onclick="saveHost()" class="btn-save" style="padding:9px 22px">Save Host</button>
+    </div>
+  </div>
+  ${isEdit?`<div style="display:flex;gap:12px;margin-bottom:18px">
+    <div class="stat-card" style="flex:1;padding:12px 16px"><div class="stat-num" style="font-size:22px">${hs.days}</div><div class="stat-lbl">Hosting Days</div></div>
+    <div class="stat-card" style="flex:1;padding:12px 16px"><div class="stat-num" style="font-size:22px">${hs.trips}</div><div class="stat-lbl">Trips Covered</div></div>
+  </div>`:''}
+  <div style="background:#fff;border-radius:14px;border:1px solid var(--border);padding:22px 24px;margin-bottom:16px;box-shadow:var(--shadow)">
+    <div class="gdb-section-title">Host Details</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div class="fld"><label>Name *</label><input id="h_name" value="${eq('name')}" placeholder="Dr Sarah Lim"/></div>
+      <div class="fld"><label>Title / Department</label><input id="h_dept" value="${eq('dept')}" placeholder="Asst Prof, Bioengineering"/></div>
+      <div class="fld"><label>Email</label><input id="h_email" value="${eq('email')}" placeholder="sarah@uni.edu.sg"/></div>
+      <div class="fld"><label>Phone / WhatsApp</label><input id="h_phone" value="${eq('phone')}" placeholder="+65 9123 4567"/></div>
+    </div>
+    <div class="fld"><label>Notes</label><textarea id="h_notes" placeholder="Any relevant information..." style="min-height:72px;resize:vertical">${eq('notes')}</textarea></div>
+  </div>
+  <div style="display:flex;justify-content:flex-end;gap:8px">
+    ${isEdit?'<button onclick="_del(event)" data-fn="confirmDelHost" data-id="'+id+'" class="btn-danger" style="margin-right:auto">Delete Host</button>':''}
+    <button onclick="setView('hosts')" class="btn-can">Cancel</button>
+    <button onclick="saveHost()" class="btn-save" style="padding:9px 22px">Save Host</button>
+  </div></div>`;
+}
+function saveHost(){
+  const name=gv('h_name').trim();if(!name){alert('Name required');return;}
+  const data={name,dept:gv('h_dept').trim(),email:gv('h_email').trim(),phone:gv('h_phone').trim(),notes:gv('h_notes').trim()};
+  if(X.hstId)Object.assign(S.hosts.find(x=>x.id===X.hstId),data);else S.hosts.push({id:uid(),...data});
+  save();setView('hosts');
+}
+function delHost(){const h=S.hosts.find(x=>x.id===X.hstId);if(!h)return;if(!confirm('Delete '+h.name+'?'))return;S.hosts=S.hosts.filter(x=>x.id!==X.hstId);save();setView('hosts');}
+function confirmDelHost(id){X.hstId=id;delHost();}
+
+// ── DRIVER full-page edit ─────────────────────────────────────────────────────
+function openDriverModal(id){S.editDriverId=id||null;setView('editDriver');}
+function renderEditDriverPage(va){
+  va.style.cssText='flex:1;overflow-y:auto;background:var(--bg);';
+  const id=S.editDriverId||null;const d=id?S.drivers.find(x=>x.id===id):null;
+  X.drvId=id;const isEdit=!!d;const eq=(k)=>esc(d?.[k]||'');
+  const ds=driverStats(id||'');
+  const vtypes=['MPV','Sedan','SUV','Minibus','Coach','Other'];
+  va.innerHTML=`<div style="max-width:720px;margin:0 auto;padding:24px 28px 56px">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap">
+    <div>
+      <button onclick="setView('drivers')" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--slate);background:none;border:none;cursor:pointer;padding:0 0 8px 0">‹ Driver Database</button>
+      <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:26px;color:var(--navy)">${isEdit?'Edit Driver':'Add Driver'}</div>
+      <div style="font-size:12px;color:var(--slate);margin-top:3px">${isEdit?eq('name'):'New driver record'}</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;padding-top:4px">
+      ${isEdit?'<button onclick="_del(event)" data-fn="confirmDelDriver" data-id="'+id+'" class="btn-danger">Delete</button>':''}
+      <button onclick="setView('drivers')" class="btn-can">Cancel</button>
+      <button onclick="saveDriver()" class="btn-save" style="padding:9px 22px">Save Driver</button>
+    </div>
+  </div>
+  ${isEdit?`<div style="display:flex;gap:12px;margin-bottom:18px">
+    <div class="stat-card" style="flex:1;padding:12px 16px"><div class="stat-num" style="font-size:22px">${ds.days}</div><div class="stat-lbl">Driving Days</div></div>
+    <div class="stat-card" style="flex:1;padding:12px 16px"><div class="stat-num" style="font-size:22px">${ds.trips}</div><div class="stat-lbl">Trips Covered</div></div>
+  </div>`:''}
+  <div style="background:#fff;border-radius:14px;border:1px solid var(--border);padding:22px 24px;margin-bottom:16px;box-shadow:var(--shadow)">
+    <div class="gdb-section-title">Driver Details</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div class="fld"><label>Name *</label><input id="d_name" value="${eq('name')}" placeholder="James Tan"/></div>
+      <div class="fld"><label>Phone / WhatsApp</label><input id="d_phone" value="${eq('phone')}" placeholder="+65 8765 4321"/></div>
+      <div class="fld"><label>Agency / Company</label><input id="d_agency" value="${eq('agency')}" placeholder="ComfortDelGro"/></div>
+      <div class="fld"><label>Notes</label><input id="d_notes" value="${eq('notes')}" placeholder="Any notes"/></div>
+    </div>
+  </div>
+  <div style="background:#fff;border-radius:14px;border:1px solid var(--border);padding:22px 24px;margin-bottom:16px;box-shadow:var(--shadow)">
+    <div class="gdb-section-title">Vehicle Details</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <div class="fld"><label>Vehicle Type</label><select id="d_vtype">${vtypes.map(v=>'<option'+((d?.vtype===v)?' selected':'')+'>'+v+'</option>').join('')}</select></div>
+      <div class="fld"><label>Plate No.</label><input id="d_plate" value="${eq('plate')}" placeholder="SKA1234A"/></div>
+      <div class="fld"><label>Vehicle / Model</label><input id="d_car" value="${eq('car')}" placeholder="e.g. MB - GLC"/></div>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:flex-end;gap:8px">
+    ${isEdit?'<button onclick="_del(event)" data-fn="confirmDelDriver" data-id="'+id+'" class="btn-danger" style="margin-right:auto">Delete Driver</button>':''}
+    <button onclick="setView('drivers')" class="btn-can">Cancel</button>
+    <button onclick="saveDriver()" class="btn-save" style="padding:9px 22px">Save Driver</button>
+  </div></div>`;
+}
+function saveDriver(){
+  const name=gv('d_name').trim();if(!name){alert('Name required');return;}
+  const data={name,phone:gv('d_phone').trim(),vtype:gv('d_vtype'),plate:gv('d_plate').trim(),car:gv('d_car').trim(),agency:gv('d_agency').trim(),notes:gv('d_notes').trim()};
+  if(X.drvId)Object.assign(S.drivers.find(x=>x.id===X.drvId),data);else S.drivers.push({id:uid(),...data});
+  save();setView('drivers');
+}
+function delDriver(){const d=S.drivers.find(x=>x.id===X.drvId);if(!d)return;if(!confirm('Delete '+d.name+'?'))return;S.drivers=S.drivers.filter(x=>x.id!==X.drvId);save();setView('drivers');}
+function confirmDelDriver(id){X.drvId=id;delDriver();}
+
+// ── HOTEL full-page edit ──────────────────────────────────────────────────────
+function openHotelModal(id){S.editHotelId=id||null;setView('editHotel');}
+function renderEditHotelPage(va){
+  va.style.cssText='flex:1;overflow-y:auto;background:var(--bg);';
+  const id=S.editHotelId||null;const h=id?S.hotels.find(x=>x.id===id):null;
+  X.htlId=id;const isEdit=!!h;const eq=(k)=>esc(h?.[k]||'');
+  const hs=hotelStats(id||'');
+  va.innerHTML=`<div style="max-width:720px;margin:0 auto;padding:24px 28px 56px">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap">
+    <div>
+      <button onclick="setView('hotels')" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--slate);background:none;border:none;cursor:pointer;padding:0 0 8px 0">‹ Hotel Database</button>
+      <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:26px;color:var(--navy)">${isEdit?'Edit Hotel':'Add Hotel'}</div>
+      <div style="font-size:12px;color:var(--slate);margin-top:3px">${isEdit?eq('name'):'New hotel record'}</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;padding-top:4px">
+      ${isEdit?'<button onclick="_del(event)" data-fn="confirmDelHotel" data-id="'+id+'" class="btn-danger">Delete</button>':''}
+      <button onclick="setView('hotels')" class="btn-can">Cancel</button>
+      <button onclick="saveHotel()" class="btn-save" style="padding:9px 22px">Save Hotel</button>
+    </div>
+  </div>
+  ${isEdit?`<div style="display:flex;gap:12px;margin-bottom:18px">
+    <div class="stat-card" style="flex:1;padding:12px 16px"><div class="stat-num" style="font-size:22px">${hs.nights}</div><div class="stat-lbl">Nights Booked</div></div>
+    <div class="stat-card" style="flex:1;padding:12px 16px"><div class="stat-num" style="font-size:22px">${hs.guests.length}</div><div class="stat-lbl">Linked Guests</div>${hs.guests.length?'<div style="font-size:10px;color:var(--slate);margin-top:3px">'+hs.guests.join(', ')+'</div>':''}</div>
+  </div>`:''}
+  <div style="background:#fff;border-radius:14px;border:1px solid var(--border);padding:22px 24px;margin-bottom:16px;box-shadow:var(--shadow)">
+    <div class="gdb-section-title">Hotel Details</div>
+    <div style="display:grid;grid-template-columns:120px 1fr;gap:12px;margin-bottom:12px">
+      <div class="fld"><label>Short Code</label><input id="ht_code" value="${eq('code')}" placeholder="MO" style="font-family:monospace;font-weight:700;font-size:14px"/></div>
+      <div class="fld"><label>Hotel Name *</label><input id="ht_name" value="${eq('name')}" placeholder="Mandarin Orchard Singapore"/></div>
+    </div>
+    <div class="fld" style="margin-bottom:12px"><label>Address</label><input id="ht_addr" value="${eq('address')}" placeholder="333 Orchard Rd, Singapore 238867"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div class="fld"><label>Phone</label><input id="ht_phone" value="${eq('phone')}" placeholder="+65 6737 4411"/></div>
+      <div class="fld"><label>Website</label><input id="ht_web" value="${eq('web')}" placeholder="mandarinorchard.com.sg"/></div>
+    </div>
+    <div class="fld"><label>Notes</label><textarea id="ht_notes" placeholder="Concierge contact, parking, loyalty programme..." style="min-height:72px;resize:vertical">${eq('notes')}</textarea></div>
+  </div>
+  <div style="display:flex;justify-content:flex-end;gap:8px">
+    ${isEdit?'<button onclick="_del(event)" data-fn="confirmDelHotel" data-id="'+id+'" class="btn-danger" style="margin-right:auto">Delete Hotel</button>':''}
+    <button onclick="setView('hotels')" class="btn-can">Cancel</button>
+    <button onclick="saveHotel()" class="btn-save" style="padding:9px 22px">Save Hotel</button>
+  </div></div>`;
+}
+function saveHotel(){
+  const name=gv('ht_name').trim();if(!name){alert('Hotel name required');return;}
+  const data={code:gv('ht_code').trim(),name,address:gv('ht_addr').trim(),phone:gv('ht_phone').trim(),web:gv('ht_web').trim(),notes:gv('ht_notes').trim()};
+  if(X.htlId)Object.assign(S.hotels.find(x=>x.id===X.htlId),data);else S.hotels.push({id:uid(),...data});
+  save();setView('hotels');
+}
+function delHotel(){const h=S.hotels.find(x=>x.id===X.htlId);if(!h)return;if(!confirm('Delete '+h.name+'?'))return;S.hotels=S.hotels.filter(x=>x.id!==X.htlId);save();setView('hotels');}
+function confirmDelHotel(id){X.htlId=id;delHotel();}
+
+// ── DELETE BUTTON DISPATCHER (avoids quote escaping in template literals) ──────
+function _del(e){
+  const btn=e.currentTarget;
+  const fn=btn.dataset.fn;
+  const id=btn.dataset.id;
+  if(fn==='confirmDelHost')confirmDelHost(id);
+  else if(fn==='confirmDelDriver')confirmDelDriver(id);
+  else if(fn==='confirmDelHotel')confirmDelHotel(id);
+  else if(fn==='confirmDelGDB')confirmDelGDB(id);
+  else if(fn==='confirmDelVenue')confirmDelVenue(id);
+}
+
+// ── VENUES DB ────────────────────────────────────────────────────────────────
+function openVenueModal(id){S.editVenueId=id||null;setView('editVenue');}
+function renderVenuesDB(){
+  const v=S.venues;
+  return `<div class="db-header"><div><div class="db-title">🍴 Venues Database</div><div class="db-sub">Restaurants, function rooms, staff canteens and meal locations</div></div><button class="btn-primary" onclick="openVenueModal()">＋ Add Venue</button></div>
+  <div class="stat-cards"><div class="stat-card"><div class="stat-num">${v.length}</div><div class="stat-lbl">Registered Venues</div></div><div class="stat-card"><div class="stat-num">${v.filter(x=>x.halal).length}</div><div class="stat-lbl">Halal-Certified</div></div><div class="stat-card"><div class="stat-num">${[...new Set(v.map(x=>x.type).filter(Boolean))].length}</div><div class="stat-lbl">Venue Types</div></div><div class="stat-card"><div class="stat-num">${v.reduce((s,x)=>s+(x.maxPax||0),0)||'—'}</div><div class="stat-lbl">Total Capacity</div></div></div>
+  <div class="table-wrap"><table class="db-table"><thead><tr><th>#</th><th>Venue</th><th>Type</th><th>Halal</th><th>Max Pax</th><th>Phone</th><th></th></tr></thead><tbody>${v.length?v.map((vn,i)=>`<tr><td style="color:var(--slate2)">${i+1}</td><td><div class="db-name">${esc(vn.name)}</div><div class="db-sub2">${esc(vn.address||'')}</div></td><td><span class="tag navy">${esc(vn.type||'—')}</span></td><td>${vn.halal?'<span class="tag dietary">✓ Halal</span>':'<span class="tag none">—</span>'}</td><td style="font-size:12px">${vn.maxPax||'—'}</td><td style="font-size:11px;color:var(--slate)">${esc(vn.phone||'—')}</td><td><div class="row-acts"><button class="ract" onclick="openVenueModal('${vn.id}')">Edit</button><button class="ract del" onclick="confirmDelVenue('${vn.id}')">Del</button></div></td></tr>`).join(''):`<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--slate);font-style:italic">No venues yet. Add restaurants, canteens and function rooms.</td></tr>`}</tbody></table></div>`;
+}
+function renderEditVenuePage(va){
+  va.style.cssText='flex:1;overflow-y:auto;background:var(--bg);';
+  const id=S.editVenueId||null;const v=id?S.venues.find(x=>x.id===id):null;
+  X.venId=id;const isEdit=!!v;const eq=k=>esc(v?.[k]||'');
+  const vtypes=['Restaurant','Faculty Club','Staff Canteen','Hotel Restaurant','Function Room','External Venue','Other'];
+  va.innerHTML=`<div style="max-width:720px;margin:0 auto;padding:24px 28px 56px">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap">
+    <div><button onclick="setView('venues')" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--slate);background:none;border:none;cursor:pointer;padding:0 0 8px 0">‹ Venues Database</button>
+    <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:26px;color:var(--navy)">${isEdit?'Edit Venue':'Add Venue'}</div>
+    <div style="font-size:12px;color:var(--slate);margin-top:3px">${isEdit?eq('name'):'New venue record'}</div></div>
+    <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;padding-top:4px">
+      ${isEdit?'<button onclick="_del(event)" data-fn="confirmDelVenue" data-id="'+id+'" class="btn-danger">Delete</button>':''}
+      <button onclick="setView('venues')" class="btn-can">Cancel</button>
+      <button onclick="saveVenue()" class="btn-save" style="padding:9px 22px">Save Venue</button>
+    </div>
+  </div>
+  <div style="background:#fff;border-radius:14px;border:1px solid var(--border);padding:22px 24px;margin-bottom:16px;box-shadow:var(--shadow)">
+    <div class="gdb-section-title">Venue Details</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div class="fld"><label>Venue Name *</label><input id="ven_name" value="${eq('name')}" placeholder="e.g. NAMC Faculty Club"/></div>
+      <div class="fld"><label>Type</label><select id="ven_type">${vtypes.map(t=>'<option'+((v?.type===t)?' selected':'')+'>'+t+'</option>').join('')}</select></div>
+      <div class="fld" style="grid-column:1/-1"><label>Address</label><input id="ven_addr" value="${eq('address')}" placeholder="e.g. Block B, Level 3"/></div>
+      <div class="fld"><label>Phone / WhatsApp</label><input id="ven_phone" value="${eq('phone')}" placeholder="+65 9000 0000"/></div>
+      <div class="fld"><label>Max Pax</label><input id="ven_maxPax" type="number" value="${v?.maxPax||''}" placeholder="e.g. 30"/></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <label class="tgl"><input type="checkbox" id="ven_halal" ${v?.halal?'checked':''}/><div class="tgl-s"></div></label>
+      <div><div style="font-size:13px;font-weight:500">Halal-Certified</div><div style="font-size:11px;color:var(--slate)">Suitable for Muslim guests</div></div>
+    </div>
+    <div class="fld"><label>Notes</label><textarea id="ven_notes" style="min-height:60px;resize:vertical" placeholder="e.g. Booking contact, specialties, parking...">${eq('notes')}</textarea></div>
+  </div>
+  <div style="display:flex;justify-content:flex-end;gap:8px">
+    ${isEdit?'<button onclick="_del(event)" data-fn="confirmDelVenue" data-id="'+id+'" class="btn-danger" style="margin-right:auto">Delete Venue</button>':''}
+    <button onclick="setView('venues')" class="btn-can">Cancel</button>
+    <button onclick="saveVenue()" class="btn-save" style="padding:9px 22px">Save Venue</button>
+  </div></div>`;
+}
+function saveVenue(){
+  const name=gv('ven_name').trim();if(!name){alert('Name required');return;}
+  const data={name,type:gv('ven_type'),address:gv('ven_addr').trim(),phone:gv('ven_phone').trim(),maxPax:parseInt(gv('ven_maxPax'))||0,halal:document.getElementById('ven_halal').checked,notes:gv('ven_notes').trim()};
+  if(X.venId)Object.assign(S.venues.find(x=>x.id===X.venId),data);else S.venues.push({id:uid(),...data});
+  save();setView('venues');
+}
+function delVenue(){const v=S.venues.find(x=>x.id===X.venId);if(!v)return;if(!confirm('Delete '+v.name+'?'))return;S.venues=S.venues.filter(x=>x.id!==X.venId);save();setView('venues');}
+function confirmDelVenue(id){X.venId=id;delVenue();}
+
+// ── TEMPLATES MANAGEMENT ──────────────────────────────────────────────────────
+function renderEditTemplatePage(va){
+  // Templates are edited inline on the templates page; redirect there
+  setView('templates');
+}
+function renderTemplatesPage(va){
+  va.style.cssText='flex:1;overflow-y:auto;background:var(--bg);';
+  const tpls=S.templates||JSON.parse(JSON.stringify(DEFAULT_TPLS));
+  if(!S.templates){S.templates=tpls;save();}
+  const tab=S.tplTab||'events';
+  const icons={events:'📅',meals:'🍽️',activities:'🎯'};
+  const items=tpls[tab]||[];
+  va.innerHTML=`<div style="max-width:840px;margin:0 auto;padding:24px 28px 56px">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px">
+    <div><div style="font-family:'Playfair Display',serif;font-weight:700;font-size:26px;color:var(--navy)">⚡ Event Templates</div>
+    <div style="font-size:12px;color:var(--slate);margin-top:3px">Quick-add presets for events, meals and activities</div></div>
+    <button onclick="openAddTemplate()" class="btn-primary">＋ Add Template</button>
+  </div>
+  <div style="display:flex;gap:6px;margin-bottom:16px">
+    ${['events','meals','activities'].map(t=>`<button onclick="S.tplTab='${t}';renderTemplatesPage(document.getElementById('viewArea').firstChild||document.getElementById('viewArea'))" style="padding:7px 18px;border-radius:8px;border:${tab===t?'none':'1px solid var(--border)'};background:${tab===t?'var(--navy)':'#fff'};color:${tab===t?'#fff':'var(--navy)'};cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:12px">${icons[t]} ${t.charAt(0).toUpperCase()+t.slice(1)}</button>`).join('')}
+  </div>
+  <div class="table-wrap"><table class="db-table"><thead><tr><th>#</th><th>Title</th><th>Default Time</th><th>Default Location</th><th>Status</th><th></th></tr></thead>
+  <tbody>${items.length?items.map((tpl,i)=>`<tr><td style="color:var(--slate2)">${i+1}</td>
+    <td><div class="db-name">${esc(tpl.title)}</div></td>
+    <td style="font-size:12px;font-family:monospace">${esc(tpl.time||'—')}</td>
+    <td style="font-size:12px;color:var(--slate)">${esc(tpl.location||'—')}</td>
+    <td><span class="s-badge ${tpl.status||'confirmed'}">${tpl.status||'confirmed'}</span></td>
+    <td><div class="row-acts"><button class="ract" onclick="openEditTemplate(${i})">Edit</button><button class="ract del" onclick="delTemplate(${i})">Del</button></div></td>
+  </tr>`).join(''):`<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--slate);font-style:italic">No ${tab} templates yet.</td></tr>`}
+  </tbody></table></div>
+  <div id="tplFormArea"></div></div>`;
+  // Store tab reference for re-render
+  S.tplTab=tab;
+}
+function openAddTemplate(){
+  const tab=S.tplTab||'events';
+  document.getElementById('tplFormArea').innerHTML=buildTplForm(null,-1,tab);
+}
+function openEditTemplate(idx){
+  const tab=S.tplTab||'events';
+  const tpl=(S.templates||DEFAULT_TPLS)[tab][idx];
+  document.getElementById('tplFormArea').innerHTML=buildTplForm(tpl,idx,tab);
+}
+function buildTplForm(tpl,idx,tab){
+  const statuses=['confirmed','pending','tbd'];
+  return `<div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:20px 22px;margin-top:16px;box-shadow:var(--shadow)">
+  <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px">${idx<0?'New Template':'Edit Template'}</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div class="fld" style="grid-column:1/-1"><label>Title *</label><input id="tf_title" value="${esc(tpl?.title||'')}" placeholder="e.g. Airport Pickup"/></div>
+    <div class="fld"><label>Default Time</label><input type="time" id="tf_time" value="${tpl?.time||''}"/></div>
+    <div class="fld"><label>Status</label><select id="tf_status">${statuses.map(s=>'<option'+(tpl?.status===s?' selected':'')+'>'+s+'</option>').join('')}</select></div>
+    <div class="fld" style="grid-column:1/-1"><label>Default Location</label><input id="tf_loc" value="${esc(tpl?.location||'')}" placeholder="e.g. Changi Airport T3"/></div>
+    <div class="fld" style="grid-column:1/-1"><label>Notes</label><input id="tf_notes" value="${esc(tpl?.notes||'')}" placeholder="Any default notes"/></div>
+  </div>
+  <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px">
+    <button onclick="document.getElementById('tplFormArea').innerHTML=''" class="btn-can">Cancel</button>
+    <button onclick="saveTemplate(${idx})" class="btn-save">Save Template</button>
+  </div></div>`;
+}
+function saveTemplate(idx){
+  if(!S.templates)S.templates=JSON.parse(JSON.stringify(DEFAULT_TPLS));
+  const tab=S.tplTab||'events';
+  const title=gv('tf_title').trim();if(!title){alert('Title required');return;}
+  const tpl={id:uid(),title,time:gv('tf_time'),location:gv('tf_loc').trim(),notes:gv('tf_notes').trim(),status:gv('tf_status')};
+  if(idx<0)S.templates[tab].push(tpl);else S.templates[tab][idx]=tpl;
+  save();setView('templates');
+}
+function delTemplate(idx){
+  if(!S.templates)S.templates=JSON.parse(JSON.stringify(DEFAULT_TPLS));
+  const tab=S.tplTab||'events';
+  if(!confirm('Delete this template?'))return;
+  S.templates[tab].splice(idx,1);save();setView('templates');
+}
+
+// ── CALENDAR CUSTOM EVENTS ────────────────────────────────────────────────────
+const CAL_EVT_COLORS={
+  '#DC2626':'Public Holiday','#B45309':'National Day / Parade','#EA580C':'F1 Grand Prix',
+  '#7C3AED':'Special Event','#059669':'School Holiday','#1A5FA8':'Conference / Symposium','#6B7280':'Blackout / Avoid Period'
+};
+function openCalEventModal(id){
+  X.calEvtId=id||null;
+  const ev=id?(S.calEvents||[]).find(x=>x.id===id):null;
+  document.getElementById('calEvtMT').textContent=id?'Edit Event':'Add Calendar Event';
+  document.getElementById('ceDel').style.display=id?'':'none';
+  sv('ce_date',ev?.date||S.cal.date?.slice(0,10)||localDate());
+  sv('ce_type',ev?.color||'#DC2626');
+  sv('ce_title',ev?.title||'');sv('ce_notes',ev?.notes||'');
+  om('calEventModal');
+}
+function editCalEvent(id){openCalEventModal(id);}
+function saveCalEvent(){
+  const date=gv('ce_date'),title=gv('ce_title').trim();
+  if(!date||!title){alert('Date and title required');return;}
+  if(!S.calEvents)S.calEvents=[];
+  const data={date,title,color:gv('ce_type'),notes:gv('ce_notes').trim()};
+  if(X.calEvtId){Object.assign(S.calEvents.find(x=>x.id===X.calEvtId),data);}
+  else{S.calEvents.push({id:uid(),...data});}
+  save();cm('calEventModal');refreshCal();
+}
+function delCalEvent(){
+  if(!X.calEvtId)return;if(!confirm('Delete this event?'))return;
+  S.calEvents=(S.calEvents||[]).filter(x=>x.id!==X.calEvtId);
+  save();cm('calEventModal');refreshCal();
+}
+function onCalEvtType(){}
+
+// ── VENUES IN ITEM MODAL ──────────────────────────────────────────────────────
+function populateVenueSelect(){
+  const sel=document.getElementById('i_venueSel');if(!sel)return;
+  const items=S.venues||[];
+  sel.innerHTML='<option value="">— Quick select venue —</option>'+items.map(v=>`<option value="${esc(v.name)}">${esc(v.name)}${v.halal?' ✓ Halal':''}${v.maxPax?' (max '+v.maxPax+')':''}</option>`).join('');
+}
+function applyVenue(){
+  const sel=document.getElementById('i_venueSel');if(!sel||!sel.value)return;
+  sv('i_loc',sel.value);
+}
+
+// ── TRIP DATE SYNC FROM FLIGHTS ────────────────────────────────────────────────
+function syncTripDatesFromFlights(){
+  const t=gAct();if(!t)return;
+  const arr=gv('gc_arrDate');const dep=gv('gc_depDate');
+  let changed=false;
+  if(arr&&arr!==t.startDate&&confirm('Update trip START date to '+arr+' (from arrival flight)?')){
+    t.startDate=arr;ensureDays(t);changed=true;
+  }
+  if(dep&&dep!==t.endDate&&confirm('Update trip END date to '+dep+' (from departure flight)?')){
+    t.endDate=dep;ensureDays(t);changed=true;
+  }
+  if(changed){save();alert('Trip dates updated. Day-by-day itinerary rebuilt.');}
+  else alert('Trip dates already match flight dates (or no flight dates set).');
+}
+
+// ── SEED VENUES ───────────────────────────────────────────────────────────────
+function seedVenues(){
+  if(S.venues&&S.venues.length)return;
+  S.venues=[
+    {id:uid(),name:'NAMC Faculty Club',type:'Faculty Club',address:'Main Campus, Block Admin',phone:'',maxPax:50,halal:false,notes:'Booking required for groups >10'},
+    {id:uid(),name:'Staff Canteen (Halal Stall)',type:'Staff Canteen',address:'Block C, Level 1',phone:'',maxPax:0,halal:true,notes:'Halal-certified stall within main canteen'},
+    {id:uid(),name:'Grand Hyatt Singapore',type:'Hotel Restaurant',address:'10 Scotts Rd, Singapore 228211',phone:'+65 6738 1234',maxPax:0,halal:false,notes:'Multiple F&B outlets'},
+    {id:uid(),name:'Jumbo Seafood (ECP)',type:'Restaurant',address:'1206 East Coast Pkwy, Singapore 449887',phone:'+65 6442 3435',maxPax:120,halal:false,notes:'Book ahead for >8 pax · Seafood speciality'},
+    {id:uid(),name:'Odette',type:'Restaurant',address:'National Gallery, 1 St Andrews Rd',phone:'+65 6385 0498',maxPax:45,halal:false,notes:'Fine dining · Advance booking required'},
+  ];
+}
+
+// ── MODAL HELPERS ─────────────────────────────────────────────────────────────
+function om(id){document.getElementById(id).classList.add('open');}
+function cm(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.mo').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)cm(el.id);}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.mo.open').forEach(el=>cm(el.id));});
+function selClr(el){document.querySelectorAll('.cswatch').forEach(s=>s.classList.remove('sel'));el.classList.add('sel');}
+function selClrByVal(v){document.querySelectorAll('.cswatch').forEach(s=>s.classList.toggle('sel',s.dataset.c===v));}
+
+// ── SEED DATA ─────────────────────────────────────────────────────────────────
+function seed(){
+  const gid1=uid(),gid2=uid(),hid1=uid(),hid2=uid(),hid3=uid(),did1=uid(),did2=uid(),htl1=uid(),htl2=uid();
+  S.guests=[{id:gid1,title:'Prof',firstName:'Douglas',lastName:'Chen',org:'MIT Department of Biology',nationality:'American',email:'dchen@mit.edu',phone:'+1 617 253 0000',dietary:'',ppNo:'A12345678',notes:''},{id:gid2,title:'Dr',firstName:'Amina',lastName:'Yusuf',org:'University of Oxford',nationality:'British',email:'a.yusuf@ox.ac.uk',phone:'+44 1865 000 000',dietary:'Halal',ppNo:'UK9876543',notes:'Prefers halal venues'}];
+  S.hosts=[{id:hid1,name:'Dr Sarah Lim',dept:'Asst Prof, Bioengineering',email:'sarah.lim@uni.edu.sg',phone:'+65 9123 4567',notes:''},{id:hid2,name:'Prof Mark Wong',dept:'Head of Dept, Chemical Eng',email:'mark.wong@uni.edu.sg',phone:'+65 9234 5678',notes:''},{id:hid3,name:'Dr Rachel Ng',dept:'Senior Lecturer, Life Sciences',email:'rachel.ng@uni.edu.sg',phone:'+65 9345 6789',notes:''}];
+  S.drivers=[{id:did1,name:'James Tan',phone:'+65 8765 4321',vtype:'MPV',plate:'SKA1234A',agency:'ComfortDelGro',notes:''},{id:did2,name:'David Koh',phone:'+65 8876 5432',vtype:'Sedan',plate:'SLB5678B',agency:'ComfortDelGro',notes:''}];
+  S.hotels=[{id:htl1,code:'MO',name:'Mandarin Orchard Singapore',address:'333 Orchard Rd, Singapore 238867',phone:'+65 6737 4411',web:'mandarinorchard.com.sg',notes:''},{id:htl2,code:'PR',name:'Park Royal on Pickering',address:'3 Upper Pickering St, Singapore 058289',phone:'+65 6809 8888',web:'parkroyalhotels.com',notes:''}];
+  const t1={id:uid(),guestId:gid1,titleStr:'Prof',guestName:'Douglas Chen',purpose:'Teaching Visit',org:'MIT Department of Biology',startDate:'2026-07-07',endDate:'2026-07-11',color:'#E86845',nationality:'American',passportNo:'A12345678',email:'dchen@mit.edu',phone:'+1 617 253 0000',dietary:'',arrFlight:'SQ 22',arrCarrier:'Singapore Airlines',arrFrom:'Boston, MA',arrDate:'2026-07-07',arrTime:'10:30',arrTerminal:'T3',depFlight:'SQ 23',depCarrier:'Singapore Airlines',depTo:'Boston, MA',depDate:'2026-07-11',depTime:'20:45',depTerminal:'T3',hotelId:htl1,hotel:'Mandarin Orchard Singapore',room:'1502',checkin:'2026-07-07',checkout:'2026-07-11',earlyCheckin:'13:00',lateCheckout:'',hotelNotes:'333 Orchard Rd · Concierge +65 6737 4411',hasSpouse:true,spouseTitle:'Mrs',spouseName:'Jane Chen',spouseDietary:'Vegetarian',spousePassport:'B98765432',spouseNationality:'American',spouseNotes:'',companions:[{id:uid(),name:'Dr Tom Li',role:'Research Assistant',dietary:''}],days:{}};
+  ensureDays(t1);
+  t1.days['2026-07-07']={hostId:hid1,host:'Dr Sarah Lim',hostContact:'+65 9123 4567',driverId:did1,driver:'James Tan',driverContact:'+65 8765 4321',events:[{id:uid(),title:'Airport Pickup — Changi T3',time:'10:30',location:'Changi Terminal 3',notes:'',status:'confirmed'}],meals:[{id:uid(),title:'Welcome Lunch',time:'13:00',location:'NAMC Faculty Club',notes:'',status:'confirmed'}],activities:[{id:uid(),title:'Campus Orientation Tour',time:'15:00',location:'Main Campus',notes:'Dr Sarah to escort',status:'confirmed'}]};
+  t1.days['2026-07-08']={hostId:hid2,host:'Prof Mark Wong',hostContact:'',driverId:did1,driver:'James Tan',driverContact:'',events:[{id:uid(),title:'Lecture — Advanced Bioprocess Engineering',time:'09:00',location:'LT1, Block A',notes:'90 min + 30 min Q&A',status:'confirmed'},{id:uid(),title:'Lab Visit & PhD Student Q&A',time:'14:00',location:'Biopharm Lab, Level 3',notes:'',status:'confirmed'}],meals:[{id:uid(),title:'Faculty Lunch',time:'12:00',location:'Staff Canteen',notes:'',status:'confirmed'}],activities:[]};
+  t1.days['2026-07-09']={hostId:hid3,host:'Dr Rachel Ng',hostContact:'',driverId:did2,driver:'David Koh',driverContact:'+65 8876 5432',events:[{id:uid(),title:'PhD Workshop — Student Presentations',time:'10:00',location:'Seminar Room 2B',notes:'10 students',status:'confirmed'}],meals:[{id:uid(),title:'Working Lunch with PhD Students',time:'12:30',location:'Seminar Room 2B',notes:'',status:'confirmed'},{id:uid(),title:'Research Collaboration Dinner',time:'19:00',location:'Odette, National Gallery',notes:'7 pax incl Mrs Chen',status:'confirmed'}],activities:[{id:uid(),title:'Gardens by the Bay',time:'17:00',location:'Gardens by the Bay',notes:'Spouses welcome',status:'pending'}]};
+  t1.days['2026-07-10']={hostId:hid2,host:'Prof Mark Wong',hostContact:'',driverId:did2,driver:'David Koh',driverContact:'',events:[{id:uid(),title:'MOU Signing Ceremony',time:'10:00',location:'Board Room, Admin Block',notes:'',status:'confirmed'}],meals:[{id:uid(),title:'Farewell Lunch with Dean',time:'12:30',location:'Faculty Club',notes:'Dean + 4 HODs',status:'confirmed'}],activities:[{id:uid(),title:'Sentosa Day Trip',time:'15:00',location:'Sentosa Island',notes:'Mrs Chen & Dr Tom joining',status:'pending'}]};
+  t1.days['2026-07-11']={hostId:hid1,host:'Dr Sarah Lim',hostContact:'',driverId:did1,driver:'James Tan',driverContact:'',events:[{id:uid(),title:'Airport Drop-off — Changi T3',time:'07:30',location:'Hotel Lobby Pickup',notes:'Flight SQ 23 at 20:45',status:'confirmed'}],meals:[],activities:[]};
+  const t2={id:uid(),guestId:gid2,titleStr:'Dr',guestName:'Amina Yusuf',purpose:'Research Collaboration',org:'University of Oxford',startDate:'2026-07-20',endDate:'2026-07-22',color:'#2D7D5A',nationality:'British',dietary:'Halal',email:'a.yusuf@ox.ac.uk',arrFlight:'EK 345',arrCarrier:'Emirates',arrFrom:'London (LHR)',arrDate:'2026-07-20',arrTime:'18:00',arrTerminal:'T1',depFlight:'EK 346',depCarrier:'Emirates',depTo:'London (LHR)',depDate:'2026-07-22',depTime:'23:55',depTerminal:'T1',hotelId:htl2,hotel:'Park Royal on Pickering',room:'802',checkin:'2026-07-20',checkout:'2026-07-22',hasSpouse:false,companions:[],days:{}};
+  ensureDays(t2);
+  t2.days['2026-07-20']={hostId:hid3,host:'Dr Rachel Ng',hostContact:'',driverId:did1,driver:'James Tan',driverContact:'',events:[{id:uid(),title:'Arrival Pickup — T1',time:'18:00',location:'Changi Terminal 1',notes:'Halal dinner after',status:'confirmed'}],meals:[{id:uid(),title:'Welcome Dinner',time:'20:00',location:'Jumbo Seafood (Halal)',notes:'Halal confirmed',status:'confirmed'}],activities:[]};
+  t2.days['2026-07-21']={hostId:hid3,host:'Dr Rachel Ng',hostContact:'',driverId:did2,driver:'David Koh',driverContact:'',events:[{id:uid(),title:'Research Seminar Presentation',time:'10:00',location:'Auditorium B',notes:'',status:'confirmed'}],meals:[{id:uid(),title:'Lunch with Research Team',time:'12:30',location:'Staff Canteen (Halal)',notes:'',status:'confirmed'}],activities:[{id:uid(),title:'Heritage Trail — Kampong Glam',time:'16:00',location:'Arab Street',notes:'',status:'pending'}]};
+  t2.days['2026-07-22']={hostId:hid3,host:'Dr Rachel Ng',hostContact:'',driverId:did1,driver:'James Tan',driverContact:'',events:[{id:uid(),title:'Airport Drop-off — T1',time:'21:00',location:'Hotel Lobby Pickup',notes:'Flight EK 346 at 23:55',status:'confirmed'}],meals:[],activities:[]};
+  S.trips=[t1,t2];S.activeTripId=t1.id;
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+load();
+if(!S.trips.length)seed();
+seedVenues();
+if(!S.cal)S.cal={view:'month',date:localYM()+'-01'};
+// Reset transient edit views - don't persist them across page loads
+const EDIT_PARENT={editGuest:'guests',editHost:'hosts',editDriver:'drivers',editHotel:'hotels',editVenue:'venues',editTemplate:'templates'};
+if(EDIT_PARENT[S.view])S.view=EDIT_PARENT[S.view];
+render();
+</script>
+
+
+<!-- CALENDAR EVENT MODAL -->
+<div class="mo" id="calEventModal"><div class="md" style="max-width:420px">
+<div class="mh"><div><div class="mt2" id="calEvtMT">Add Event</div><div class="ms2">Holiday · Special event · Occasion</div></div><button class="mx" onclick="cm('calEventModal')">✕</button></div>
+<div class="mb2">
+  <div class="fg">
+    <div class="fld"><label>Date *</label><input type="date" id="ce_date"/></div>
+    <div class="fld"><label>Type / Colour</label>
+      <select id="ce_type" onchange="onCalEvtType()">
+        <option value="#DC2626">🔴 Public Holiday</option>
+        <option value="#B45309">🟡 National Day / Parade</option>
+        <option value="#EA580C">🟠 F1 Grand Prix</option>
+        <option value="#7C3AED">🟣 Special Event</option>
+        <option value="#059669">🟢 School Holiday</option>
+        <option value="#1A5FA8">🔵 Conference / Symposium</option>
+        <option value="#6B7280">⬛ Blackout / Avoid Period</option>
+      </select>
+    </div>
+    <div class="fld s2"><label>Title *</label><input id="ce_title" placeholder="e.g. National Day, F1 Night Race"/></div>
+    <div class="fld s2"><label>Notes</label><input id="ce_notes" placeholder="e.g. Road closures expected around Marina Bay"/></div>
+  </div>
+</div>
+<div class="mf"><button class="btn-del" id="ceDel" style="display:none" onclick="delCalEvent()">Delete</button><button class="btn-can" onclick="cm('calEventModal')">Cancel</button><button class="btn-save" onclick="saveCalEvent()">Save Event</button></div>
+</div></div>
+<!-- APS 2026 IMPORT MODAL -->
+<div class="mo" id="apsModal"><div class="md md-lg">
+<div class="mh">
+  <div><div class="mt2">⬇️ Import APS 2026 Guests</div><div class="ms2">22 guest records from Asia Pacific Symposium 2026</div></div>
+  <button class="mx" onclick="cm('apsModal')">✕</button>
+</div>
+<div class="mb2">
+  <div style="background:var(--cream);border-radius:9px;padding:11px 14px;font-size:12px;color:var(--slate);line-height:1.7">
+    Imports <strong>22 guest biodata records</strong> from the APS 2026 guest list into the Hospi Guest Database.<br>
+    Guests already in the database (matched by full name) will be <strong>skipped</strong>. No trips or flights will be created.
+  </div>
+  <div style="max-height:320px;overflow-y:auto;border-radius:9px;border:1px solid var(--border)">
+    <table class="db-table" style="margin:0">
+      <thead><tr><th>#</th><th>Name</th><th>Organisation</th><th>Nationality</th><th>Dietary / Notes</th></tr></thead>
+      <tbody id="apsPreviewBody"></tbody>
+    </table>
+  </div>
+  <div id="apsResult" style="display:none;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:600"></div>
+</div>
+<div class="mf">
+  <button class="btn-can" onclick="cm('apsModal')">Cancel</button>
+  <button class="btn-save" onclick="doImportAPS()">Import All</button>
+</div>
+</div></div>
+
+<script>
+// ── APS 2026 guest biodata ───────────────────────────────────────────────────
+const APS_GUESTS = [
+  { title:"Prof", firstName:"Doug",         lastName:"Petersen",       org:"Professor Emeritus, School of Theology & Ministry, Vanguard University", nationality:"American",     dietary:"", dietaryNotes:"No tofu, no small seeds", notes:"Spouse: Sis Myrna" },
+  { title:"Prof", firstName:"Byron",        lastName:"Klaus",          org:"Scholar, Missionary; Past President of AGTS; Co-Editor, The Globalization of Pentecostalism",       nationality:"American",     dietary:"", dietaryNotes:"",                          notes:"Spouse: Ruth Lois" },
+  { title:"Prof", firstName:"Roger",        lastName:"Heuser",         org:"Professor Emeritus, School of Theology & Ministry, Vanguard University", nationality:"American",     dietary:"", dietaryNotes:"Spouse Gayle: no kiwi, no persimmon",               notes:"Spouse: Ps Gayle" },
+  { title:"Prof", firstName:"Frank",        lastName:"Macchia",        org:"Professor of Christian Theology, Vanguard University",                  nationality:"American",     dietary:"", dietaryNotes:"No chilli, no seafood",                            notes:"Spouse: Verna" },
+  { title:"",     firstName:"Bill",         lastName:"Dogterom",       org:"Professor Emeritus, School of Theology & Ministry, Vanguard University", nationality:"American",     dietary:"", dietaryNotes:"",                          notes:"" },
+  { title:"Prof", firstName:"Amos",         lastName:"Yong",           org:"Professor, Fuller Theological Seminary",                                nationality:"American",     dietary:"", dietaryNotes:"",                          notes:"Spouse: Alma" },
+  { title:"Prof", firstName:"Joy",          lastName:"Qualls",         org:"Associate Professor, Communication Studies, Biola University",           nationality:"American",     dietary:"", dietaryNotes:"Prefers coffee and sparkling water", notes:"" },
+  { title:"Dr",   firstName:"Wonsuk",       lastName:"Ma",             org:"Distinguished Professor of Global Christianity, Oral Roberts University",nationality:"South Korean", dietary:"", dietaryNotes:"",                          notes:"Spouse: Dr Julie Ma" },
+  { title:"Dr",   firstName:"Ivan",         lastName:"Satyavrata",     org:"Chairman, World Vision International",                                  nationality:"Indian",       dietary:"", dietaryNotes:"",                          notes:"Spouse: Elizabeth" },
+  { title:"",     firstName:"Wolfgang",     lastName:"Vondey",         org:"",                                                                      nationality:"",             dietary:"", dietaryNotes:"",                          notes:"" },
+  { title:"Dr",   firstName:"Paul",         lastName:"Bendor-Samuel",  org:"",                                                                      nationality:"British",      dietary:"", dietaryNotes:"",                          notes:"" },
+  { title:"Prof", firstName:"Stephen",      lastName:"Fogarty",        org:"",                                                                      nationality:"Australian",   dietary:"", dietaryNotes:"Spouse Sandra: no beef, no chilli, no red meat; prefers chicken, duck and pork", notes:"Spouse: Sandra" },
+  { title:"",     firstName:"David",        lastName:"Perry",          org:"Vice President and Provost, Alphacrucis University College",            nationality:"Australian",   dietary:"", dietaryNotes:"",                          notes:"Spouse: Lauren" },
+  { title:"",     firstName:"Simon",        lastName:"Chan",           org:"Past Earnest Lau Professor of Systematic Theology, Trinity Theological College", nationality:"Singaporean", dietary:"", dietaryNotes:"",               notes:"Local guest — no hotel / flights required" },
+  { title:"Dr",   firstName:"Bill",         lastName:"Oliverio",       org:"Editor-in-Chief, Pneuma: Journal of the Society for Pentecostal Studies", nationality:"American",   dietary:"", dietaryNotes:"",                          notes:"Spouse: Rachel Lynae. Additional guest: Louis Oliverio Jr" },
+  { title:"",     firstName:"Candy",        lastName:"Gunther Brown",  org:"Professor of Religious Studies, Indiana University Bloomington",         nationality:"American",     dietary:"", dietaryNotes:"",                          notes:"" },
+  { title:"",     firstName:"Jonathan",     lastName:"Black",          org:"Principal, The Apostolic Church Theology School; Director of Training, Apostolic Church UK", nationality:"British", dietary:"", dietaryNotes:"",      notes:"" },
+  { title:"",     firstName:"Melissa",      lastName:"Archer",         org:"Professor of New Testament, Co-Director MA in Bible & Theology, Trinity Bible College & Graduate School", nationality:"American", dietary:"", dietaryNotes:"", notes:"" },
+  { title:"",     firstName:"Kenneth",      lastName:"Archer",         org:"Professor of Theology & Pentecostal Studies, Co-Director MA in Bible & Theology, Trinity Bible College & Graduate School", nationality:"American", dietary:"", dietaryNotes:"", notes:"" },
+  { title:"",     firstName:"David Michael",lastName:"Johnson",        org:"Director, APTS Press; Managing Editor, Asian Journal of Pentecostal Studies; Instructor in Intercultural Studies", nationality:"", dietary:"", dietaryNotes:"", notes:"Spouse: Debra Elaine" },
+  { title:"",     firstName:"Joel",         lastName:"Tejedo",         org:"Director, Asia Pacific Research Center, Asia Pacific Theological Seminary", nationality:"Filipino",  dietary:"", dietaryNotes:"",                          notes:"Spouse: Carolyn. Additional: Luke, Joel Jr & Hannah Tejedo" },
+  { title:"",     firstName:"Nathan",       lastName:"Poole",          org:"",                                                                      nationality:"",             dietary:"", dietaryNotes:"",                          notes:"Spouse: Annalisa" }
+];
+
+function openApsImport(){
+  // Build preview table
+  const tbody = document.getElementById('apsPreviewBody');
+  const existing = new Set(S.guests.map(g=>(g.firstName+' '+g.lastName).trim().toLowerCase()));
+  tbody.innerHTML = APS_GUESTS.map((g,i)=>{
+    const full = (g.firstName+' '+g.lastName).trim().toLowerCase();
+    const skip = existing.has(full);
+    return `<tr style="${skip?'opacity:.4':''}">
+      <td style="color:var(--slate2)">${i+1}</td>
+      <td><div class="db-name">${g.title?g.title+' ':''}${g.firstName} ${g.lastName}</div>${skip?'<div style="font-size:10px;color:var(--coral)">Already in database — will skip</div>':''}</td>
+      <td style="font-size:11px;max-width:220px;line-height:1.4">${esc(g.org||'—')}</td>
+      <td>${g.nationality?`<span class="tag navy">${esc(g.nationality)}</span>`:'<span style="color:var(--slate2)">—</span>'}</td>
+      <td style="font-size:11px;color:var(--slate)">${esc([g.dietaryNotes,g.notes].filter(Boolean).join(' · '))||'—'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('apsResult').style.display='none';
+  om('apsModal');
+}
+
+function doImportAPS(){
+  const existing = new Set(S.guests.map(g=>(g.firstName+' '+g.lastName).trim().toLowerCase()));
+  let added=0, skipped=0;
+  APS_GUESTS.forEach(g=>{
+    const full=(g.firstName+' '+g.lastName).trim().toLowerCase();
+    if(existing.has(full)){skipped++;return;}
+    // Parse dietaryNotes into allergen field, notes into spouseName
+    let spouseName='';const notesStr=g.notes||'';
+    const spM=notesStr.match(/Spouse:\s*([^.]+)/);if(spM)spouseName=spM[1].trim();
+    S.guests.push({id:uid(), title:g.title, firstName:g.firstName, lastName:g.lastName,
+      org:g.org, nationality:g.nationality, email:'', phone:'',
+      ppNo:'', notes:notesStr.replace(/Spouse:[^.]+\.?/,'').trim(),
+      spouseName, allergen:g.dietaryNotes||'', foodPref:'', bevHot:'', bevCold:'', serverNote:'',
+      spAllergen:'', spFoodPref:'', spBevHot:'', spBevCold:'', spServerNote:'', photo:null});
+    existing.add(full);
+    added++;
+  });
+  save();
+  const res=document.getElementById('apsResult');
+  res.style.display='block';
+  res.style.background=added>0?'#DCFCE7':'#FEF3C7';
+  res.style.color=added>0?'#166534':'#92400E';
+  res.textContent=`✓ Imported ${added} guest${added!==1?'s':''}${skipped>0?' · '+skipped+' skipped (already exist)':''}.`;
+  // Refresh preview to show skipped state
+  openApsImport();
+  if(added>0){
+    // Refresh guests view if currently showing it
+    if(S.view==='guests')render();
+  }
+}
+</script>
+
+</body>
+</html>
