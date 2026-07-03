@@ -288,8 +288,65 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 @media(max-width:680px){.sidebar{width:200px;min-width:200px}.gc-panels{grid-template-columns:1fr}.gc-panel:not(:last-child){border-right:none;border-bottom:1px solid rgba(255,255,255,.08)}.stat-cards{grid-template-columns:1fr 1fr}.fg{grid-template-columns:1fr}.fld.s2{grid-column:span 1}.fg.c3{grid-template-columns:1fr 1fr}}
 @media(max-width:480px){.sidebar{display:none}}
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
+<div id="loginScreen" style="position:fixed;inset:0;background:#1A2E4A;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:14px">
+  <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:#fff;letter-spacing:-.5px">Hospi</div>
+  <div style="font-size:12px;color:rgba(255,255,255,.45);margin-bottom:4px;letter-spacing:.08em;text-transform:uppercase">Guest Management System</div>
+  <input id="pwInput" type="password" placeholder="Enter access password"
+    style="padding:11px 18px;border-radius:9px;border:none;font-size:14px;width:260px;outline:none;font-family:'Inter',sans-serif"
+    onkeydown="if(event.key==='Enter')checkPW()"/>
+  <button onclick="checkPW()"
+    style="padding:10px 32px;border-radius:9px;background:#E86845;border:none;color:#fff;font-weight:700;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif">
+    Enter
+  </button>
+  <div id="pwErr" style="color:#F4A07A;font-size:12px;min-height:18px"></div>
+</div>
+
+<script>
+// ── Firebase configuration — REPLACE values with your project config ────────
+const FIREBASE_CONFIG = {
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId:             "YOUR_APP_ID"
+};
+
+// ── App password — change this ──────────────────────────────────────────────
+const APP_PASSWORD = "HOSPI2026";
+
+// ── Firestore init ──────────────────────────────────────────────────────────
+let _fsApp, _db, DOC_REF;
+try {
+  _fsApp = firebase.initializeApp(FIREBASE_CONFIG);
+  _db    = firebase.firestore();
+  DOC_REF = _db.collection('hospi').doc('maindb');
+} catch(e) {
+  console.warn('Firebase init failed — running in local-only mode:', e);
+}
+
+// ── Login ───────────────────────────────────────────────────────────────────
+function checkPW() {
+  const pw = document.getElementById('pwInput').value.trim();
+  if (pw === APP_PASSWORD) {
+    sessionStorage.setItem('hospi_auth', APP_PASSWORD);
+    document.getElementById('loginScreen').style.display = 'none';
+    initApp();
+  } else {
+    document.getElementById('pwErr').textContent = 'Incorrect password — try again';
+    document.getElementById('pwInput').select();
+  }
+}
+
+// Auto-bypass login if already authenticated this browser session
+if (sessionStorage.getItem('hospi_auth') === APP_PASSWORD) {
+  document.getElementById('loginScreen').style.display = 'none';
+}
+</script>
 <div class="app">
 <nav class="navbar">
   <div class="nav-brand">
@@ -563,8 +620,32 @@ let S={trips:[],guests:[],hosts:[],drivers:[],hotels:[],venues:[],calEvents:[],a
 let X={};
 
 // ── PERSIST ─────────────────────────────────────────────────────────────────
-function save(){localStorage.setItem('hospi_v3',JSON.stringify(S));}
-function load(){try{const d=localStorage.getItem('hospi_v3');if(d){const p=JSON.parse(d);Object.assign(S,p);}}catch(e){}}
+let _saving=false;
+function save(){
+  // Always write to localStorage as a local backup
+  try{ localStorage.setItem('hospi_v3', JSON.stringify(S)); }catch(e){}
+  // Write to Firestore if available
+  if(typeof DOC_REF==='undefined'||!DOC_REF) return;
+  if(_saving) return;
+  _saving=true;
+  DOC_REF.set(JSON.parse(JSON.stringify(S)))
+    .catch(e=>console.warn('Firestore save error:',e))
+    .finally(()=>{ _saving=false; });
+}
+async function load(){
+  // Try Firestore first
+  if(typeof DOC_REF!=='undefined'&&DOC_REF){
+    try{
+      const snap=await DOC_REF.get();
+      if(snap.exists){ Object.assign(S,snap.data()); return; }
+    }catch(e){ console.warn('Firestore load error:',e); }
+  }
+  // Fallback: localStorage
+  try{
+    const d=localStorage.getItem('hospi_v3');
+    if(d) Object.assign(S,JSON.parse(d));
+  }catch(e){}
+}
 
 // ── UTILS ────────────────────────────────────────────────────────────────────
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
@@ -1646,14 +1727,18 @@ function seed(){
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-load();
-if(!S.trips.length)seed();
-seedVenues();
-if(!S.cal)S.cal={view:'month',date:localYM()+'-01'};
-// Reset transient edit views - don't persist them across page loads
-const EDIT_PARENT={editGuest:'guests',editHost:'hosts',editDriver:'drivers',editHotel:'hotels',editVenue:'venues',editTemplate:'templates'};
-if(EDIT_PARENT[S.view])S.view=EDIT_PARENT[S.view];
-render();
+async function initApp(){
+  sessionStorage.setItem('hospi_auth', APP_PASSWORD);
+  await load();
+  if(!S.trips.length) seed();
+  seedVenues();
+  if(!S.cal) S.cal={view:'month',date:localYM()+'-01'};
+  const EDIT_PARENT={editGuest:'guests',editHost:'hosts',editDriver:'drivers',editHotel:'hotels',editVenue:'venues',editTemplate:'templates'};
+  if(EDIT_PARENT[S.view]) S.view=EDIT_PARENT[S.view];
+  render();
+}
+// Auto-launch if already authenticated this session
+if(sessionStorage.getItem('hospi_auth')===APP_PASSWORD) initApp();
 </script>
 
 
