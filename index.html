@@ -285,11 +285,11 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 .btn-del:hover{background:#FEE2E2}
 .btn-add-sm{padding:5px 11px;border-radius:6px;border:1px dashed var(--border);background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;font-size:11px;color:var(--slate);transition:all .15s;display:inline-flex;align-items:center;gap:4px}
 .btn-add-sm:hover{border-color:var(--coral);color:var(--coral)}
+.save-toast{position:fixed;bottom:20px;right:20px;background:#166534;color:#fff;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;font-family:'Inter',sans-serif;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
+.save-toast.show{opacity:1}
 @media(max-width:680px){.sidebar{width:200px;min-width:200px}.gc-panels{grid-template-columns:1fr}.gc-panel:not(:last-child){border-right:none;border-bottom:1px solid rgba(255,255,255,.08)}.stat-cards{grid-template-columns:1fr 1fr}.fg{grid-template-columns:1fr}.fld.s2{grid-column:span 1}.fg.c3{grid-template-columns:1fr 1fr}}
 @media(max-width:480px){.sidebar{display:none}}
 </style>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div id="loginScreen" style="position:fixed;inset:0;background:#1A2E4A;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:14px">
@@ -306,7 +306,12 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 </div>
 
 <script>
-// ── Firebase configuration — REPLACE values with your project config ────────
+// ── Hospi configuration ─────────────────────────────────────────────────────
+// Password to access the app
+const APP_PASSWORD = "HOSPI2026";
+
+// Firebase config — fill in your values to enable cloud sync across devices.
+// Leave as-is to use local storage only (works perfectly without Firebase).
 const FIREBASE_CONFIG = {
   apiKey:            "YOUR_API_KEY",
   authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
@@ -316,37 +321,25 @@ const FIREBASE_CONFIG = {
   appId:             "YOUR_APP_ID"
 };
 
-// ── App password — change this ──────────────────────────────────────────────
-const APP_PASSWORD = "HOSPI2026";
-
-// ── Firestore init ──────────────────────────────────────────────────────────
-let _fsApp, _db, DOC_REF;
-try {
-  _fsApp = firebase.initializeApp(FIREBASE_CONFIG);
-  _db    = firebase.firestore();
-  DOC_REF = _db.collection('hospi').doc('maindb');
-} catch(e) {
-  console.warn('Firebase init failed — running in local-only mode:', e);
-}
-
 // ── Login ───────────────────────────────────────────────────────────────────
 function checkPW() {
   const pw = document.getElementById('pwInput').value.trim();
   if (pw === APP_PASSWORD) {
-    sessionStorage.setItem('hospi_auth', APP_PASSWORD);
+    localStorage.setItem('hospi_auth', '1');          // persists across refreshes
     document.getElementById('loginScreen').style.display = 'none';
-    initApp();
   } else {
     document.getElementById('pwErr').textContent = 'Incorrect password — try again';
     document.getElementById('pwInput').select();
   }
 }
 
-// Auto-bypass login if already authenticated this browser session
-if (sessionStorage.getItem('hospi_auth') === APP_PASSWORD) {
+// Hide login screen immediately if already authenticated
+if (localStorage.getItem('hospi_auth') === '1') {
   document.getElementById('loginScreen').style.display = 'none';
 }
 </script>
+<div id="saveToast" class="save-toast">✓ Saved</div>
+<input type="file" id="importFileInput" accept=".json" style="display:none" onchange="doImport(event)">
 <div class="app">
 <nav class="navbar">
   <div class="nav-brand">
@@ -362,7 +355,11 @@ if (sessionStorage.getItem('hospi_auth') === APP_PASSWORD) {
     <button class="nav-tab" id="nt-venues"    onclick="setView('venues')">🍴 Venues</button>
     <button class="nav-tab" id="nt-templates" onclick="setView('templates')">⚡ Templates</button>
     <button class="nav-tab" id="nt-calendar"  onclick="setView('calendar')">📅 Calendar</button>
-    <button class="nav-tab" style="margin-left:auto;font-size:11px;opacity:.7" onclick="openApsImport()">⬇ APS 2026</button>
+    <div style="margin-left:auto;display:flex;gap:4px;align-items:center">
+      <button class="nav-tab" style="font-size:11px;opacity:.8" onclick="exportData()" title="Export all data as JSON backup">💾 Export</button>
+      <button class="nav-tab" style="font-size:11px;opacity:.8" onclick="document.getElementById('importFileInput').click()" title="Import data from JSON backup">📂 Import</button>
+      <button class="nav-tab" style="font-size:11px;opacity:.7" onclick="openApsImport()">⬇ APS 2026</button>
+    </div>
   </div>
 </nav>
 <div class="view-area" id="viewArea"></div>
@@ -620,31 +617,56 @@ let S={trips:[],guests:[],hosts:[],drivers:[],hotels:[],venues:[],calEvents:[],a
 let X={};
 
 // ── PERSIST ─────────────────────────────────────────────────────────────────
-let _saving=false;
-function save(){
-  // Always write to localStorage as a local backup
-  try{ localStorage.setItem('hospi_v3', JSON.stringify(S)); }catch(e){}
-  // Write to Firestore if available
-  if(typeof DOC_REF==='undefined'||!DOC_REF) return;
-  if(_saving) return;
-  _saving=true;
-  DOC_REF.set(JSON.parse(JSON.stringify(S)))
-    .catch(e=>console.warn('Firestore save error:',e))
-    .finally(()=>{ _saving=false; });
+// ── Persistence ──────────────────────────────────────────────────────────────
+// Saves to localStorage (always) + Firestore (if configured)
+let _fsSaving = false;
+
+let _toastTimer;
+function showToast(msg){
+  const t=document.getElementById('saveToast');
+  if(!t)return;
+  t.textContent=msg||'✓ Saved';
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>t.classList.remove('show'),2000);
 }
-async function load(){
-  // Try Firestore first
-  if(typeof DOC_REF!=='undefined'&&DOC_REF){
-    try{
-      const snap=await DOC_REF.get();
-      if(snap.exists){ Object.assign(S,snap.data()); return; }
-    }catch(e){ console.warn('Firestore load error:',e); }
-  }
-  // Fallback: localStorage
+
+function save(){
+  // localStorage — synchronous, always reliable
   try{
-    const d=localStorage.getItem('hospi_v3');
-    if(d) Object.assign(S,JSON.parse(d));
-  }catch(e){}
+    const json=JSON.stringify(S);
+    localStorage.setItem('hospi_v3', json);
+    console.log('[Hospi] Saved to localStorage:', json.length, 'bytes,', (S.trips||[]).length, 'trips');
+    showToast('✓ Saved');
+  }catch(e){
+    console.error('[Hospi] localStorage save FAILED:', e);
+    showToast('⚠ Save failed — storage full?');
+  }
+  // Firestore — only if properly configured and loaded
+  if(typeof DOC_REF !== 'undefined' && DOC_REF &&
+     typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY'){
+    if(_fsSaving) return;
+    _fsSaving = true;
+    DOC_REF.set(JSON.parse(JSON.stringify(S)))
+      .then(()=>showToast('✓ Saved to cloud'))
+      .catch(e => console.warn('Firestore save:', e))
+      .finally(() => { _fsSaving = false; });
+  }
+}
+
+function load(){
+  // Pure synchronous localStorage — guaranteed to work on every refresh
+  try{
+    const raw = localStorage.getItem('hospi_v3');
+    if(raw){
+      const parsed = JSON.parse(raw);
+      Object.assign(S, parsed);
+      console.log('[Hospi] Loaded from localStorage:', raw.length, 'bytes,',
+        (parsed.trips||[]).length, 'trips,', (parsed.guests||[]).length, 'guests');
+    } else {
+      console.log('[Hospi] No data in localStorage (key: hospi_v3) — will use seed data');
+    }
+  }catch(e){ console.warn('[Hospi] localStorage load failed:', e); }
 }
 
 // ── UTILS ────────────────────────────────────────────────────────────────────
@@ -1486,6 +1508,39 @@ function saveHotel(){
 function delHotel(){const h=S.hotels.find(x=>x.id===X.htlId);if(!h)return;if(!confirm('Delete '+h.name+'?'))return;S.hotels=S.hotels.filter(x=>x.id!==X.htlId);save();setView('hotels');}
 function confirmDelHotel(id){X.htlId=id;delHotel();}
 
+
+// ── Export / Import ───────────────────────────────────────────────────────────
+function exportData(){
+  const json=JSON.stringify(S, null, 2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const date=new Date().toISOString().slice(0,10);
+  a.href=url; a.download='hospi-backup-'+date+'.json';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  showToast('✓ Exported hospi-backup-'+date+'.json');
+}
+function doImport(event){
+  const file=event.target.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.trips){alert('Invalid Hospi backup file — no trips found.');return;}
+      Object.assign(S,data);
+      save(); render();
+      showToast('✓ Imported '+file.name);
+      alert('Data imported successfully: '+
+        (data.trips||[]).length+' trips, '+
+        (data.guests||[]).length+' guests.');
+    }catch(err){
+      alert('Failed to import: '+String(err));
+    }
+  };
+  reader.readAsText(file);
+  event.target.value=''; // reset so same file can be re-imported
+}
 // ── DELETE BUTTON DISPATCHER (avoids quote escaping in template literals) ──────
 function _del(e){
   const btn=e.currentTarget;
@@ -1727,18 +1782,46 @@ function seed(){
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-async function initApp(){
-  sessionStorage.setItem('hospi_auth', APP_PASSWORD);
-  await load();
-  if(!S.trips.length) seed();
+// ── App start — called once on every page load ───────────────────────────────
+function startApp(){
+  load();                          // read from localStorage (synchronous)
+  if(!S.trips.length) seed();      // first-ever run: load demo data
   seedVenues();
   if(!S.cal) S.cal={view:'month',date:localYM()+'-01'};
-  const EDIT_PARENT={editGuest:'guests',editHost:'hosts',editDriver:'drivers',editHotel:'hotels',editVenue:'venues',editTemplate:'templates'};
+  const EDIT_PARENT={editGuest:'guests',editHost:'hosts',editDriver:'drivers',
+                     editHotel:'hotels',editVenue:'venues',editTemplate:'templates'};
   if(EDIT_PARENT[S.view]) S.view=EDIT_PARENT[S.view];
+  save();                          // ensure localStorage has latest state
+  // Firebase cloud sync — load from Firestore if configured (runs async after render)
+  fsCloudLoad();
   render();
 }
-// Auto-launch if already authenticated this session
-if(sessionStorage.getItem('hospi_auth')===APP_PASSWORD) initApp();
+
+// Load from Firestore in background and re-render if data differs
+function fsCloudLoad(){
+  if(typeof FIREBASE_CONFIG==='undefined' || FIREBASE_CONFIG.apiKey==='YOUR_API_KEY') return;
+  if(typeof firebase==='undefined') return;
+  try{
+    if(!window._fsInit){
+      firebase.initializeApp(FIREBASE_CONFIG);
+      window._fsInit = true;
+      window.DOC_REF = firebase.firestore().collection('hospi').doc('maindb');
+    }
+    DOC_REF.get().then(snap=>{
+      if(snap.exists){
+        Object.assign(S, snap.data());
+        try{ localStorage.setItem('hospi_v3', JSON.stringify(S)); }catch(e){}
+        render();
+      } else {
+        // First time on Firestore: push local data up
+        DOC_REF.set(JSON.parse(JSON.stringify(S))).catch(e=>console.warn(e));
+      }
+    }).catch(e=>console.warn('Firestore cloud load:', e));
+  }catch(e){ console.warn('Firebase setup:', e); }
+}
+
+// ── Start the app immediately on every load ───────────────────────────────────
+startApp();
 </script>
 
 
