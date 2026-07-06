@@ -308,12 +308,10 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 </div>
 
 <script>
-// ── Hospi configuration ─────────────────────────────────────────────────────
-// Password to access the app
+// ── App password ─────────────────────────────────────────────────────────────
 const APP_PASSWORD = "HOSPI2026";
 
-// Firebase config — fill in your values to enable cloud sync across devices.
-// Leave as-is to use local storage only (works perfectly without Firebase).
+// ── Firebase config ───────────────────────────────────────────────────────────
 const FIREBASE_CONFIG = {
   apiKey:            "AIzaSyCR3HYsT0f1_SC4HHVx-TSsttGnsWvtqh8",
   authDomain:        "hospi-linc.firebaseapp.com",
@@ -323,19 +321,27 @@ const FIREBASE_CONFIG = {
   appId:             "1:982567511777:web:9e0148b64c19dfd2f8f9a0"
 };
 
-// ── Login ───────────────────────────────────────────────────────────────────
+// ── Initialize Firebase NOW (SDK already loaded from CDN in <head>) ───────────
+let DOC_REF = null;
+try {
+  firebase.initializeApp(FIREBASE_CONFIG);
+  DOC_REF = firebase.firestore().collection('hospi').doc('maindb');
+  console.log('[Hospi] Firebase ready');
+} catch(e) {
+  console.warn('[Hospi] Firebase init failed — local-only mode:', e.message);
+}
+
+// ── Login ─────────────────────────────────────────────────────────────────────
 function checkPW() {
   const pw = document.getElementById('pwInput').value.trim();
   if (pw === APP_PASSWORD) {
-    localStorage.setItem('hospi_auth', '1');          // persists across refreshes
+    localStorage.setItem('hospi_auth', '1');
     document.getElementById('loginScreen').style.display = 'none';
   } else {
     document.getElementById('pwErr').textContent = 'Incorrect password — try again';
     document.getElementById('pwInput').select();
   }
 }
-
-// Hide login screen immediately if already authenticated
 if (localStorage.getItem('hospi_auth') === '1') {
   document.getElementById('loginScreen').style.display = 'none';
 }
@@ -644,16 +650,14 @@ function save(){
     console.error('[Hospi] localStorage save FAILED:', e);
     showToast('⚠ Save failed — storage full?');
   }
-  // Firestore — only if properly configured and loaded
-  if(typeof DOC_REF !== 'undefined' && DOC_REF &&
-     typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey.startsWith('AIza')){
-    if(_fsSaving) return;
-    _fsSaving = true;
-    DOC_REF.set(JSON.parse(JSON.stringify(S)))
-      .then(()=>showToast('✓ Saved to cloud'))
-      .catch(e => console.warn('Firestore save:', e))
-      .finally(() => { _fsSaving = false; });
-  }
+  // Firestore — DOC_REF set by initFirebase() at startup
+  if(!DOC_REF) return;
+  if(_fsSaving) return;
+  _fsSaving=true;
+  DOC_REF.set(JSON.parse(JSON.stringify(S)))
+    .then(()=>{ console.log('[Hospi] Firestore save ✓'); showToast('✓ Cloud sync'); })
+    .catch(e=>console.warn('[Hospi] Firestore save failed:',e))
+    .finally(()=>{ _fsSaving=false; });
 }
 
 function load(){
@@ -1783,43 +1787,44 @@ function seed(){
   S.trips=[t1,t2];S.activeTripId=t1.id;
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
-// ── App start — called once on every page load ───────────────────────────────
+// ── INIT — Firebase initialized in Script 1, DOC_REF ready ─────────────────
+
 function startApp(){
-  load();                          // read from localStorage (synchronous)
-  if(!S.trips.length) seed();      // first-ever run: load demo data
+  // 1. Load from localStorage instantly
+  load();
+  if(!S.trips.length) seed();
   seedVenues();
   if(!S.cal) S.cal={view:'month',date:localYM()+'-01'};
   const EDIT_PARENT={editGuest:'guests',editHost:'hosts',editDriver:'drivers',
                      editHotel:'hotels',editVenue:'venues',editTemplate:'templates'};
   if(EDIT_PARENT[S.view]) S.view=EDIT_PARENT[S.view];
-  save();                          // ensure localStorage has latest state
-  // Firebase cloud sync — load from Firestore if configured (runs async after render)
-  fsCloudLoad();
-  render();
-}
 
-// Load from Firestore in background and re-render if data differs
-function fsCloudLoad(){
-  if(typeof FIREBASE_CONFIG==='undefined' || FIREBASE_CONFIG.apiKey==='YOUR_API_KEY') return;
-  if(typeof firebase==='undefined') return;
-  try{
-    if(!window._fsInit){
-      firebase.initializeApp(FIREBASE_CONFIG);
-      window._fsInit = true;
-      window.DOC_REF = firebase.firestore().collection('hospi').doc('maindb');
-    }
-    DOC_REF.get().then(snap=>{
-      if(snap.exists){
-        Object.assign(S, snap.data());
-        try{ localStorage.setItem('hospi_v3', JSON.stringify(S)); }catch(e){}
-        render();
-      } else {
-        // First time on Firestore: push local data up
-        DOC_REF.set(JSON.parse(JSON.stringify(S))).catch(e=>console.warn(e));
-      }
-    }).catch(e=>console.warn('Firestore cloud load:', e));
-  }catch(e){ console.warn('Firebase setup:', e); }
+  // 2. Render immediately with local data
+  render();
+
+  // 3. Sync with Firestore (async — updates render when cloud data arrives)
+  if(DOC_REF){
+    console.log('[Hospi] Fetching from Firestore...');
+    DOC_REF.get()
+      .then(snap=>{
+        if(snap.exists){
+          console.log('[Hospi] Firestore data found — loading ✓');
+          Object.assign(S, snap.data());
+          try{ localStorage.setItem('hospi_v3', JSON.stringify(S)); }catch(e){}
+          render();
+          showToast('✓ Synced from cloud');
+        } else {
+          console.log('[Hospi] No Firestore data yet — pushing local data up');
+          DOC_REF.set(JSON.parse(JSON.stringify(S)))
+            .then(()=>{ console.log('[Hospi] Pushed to Firestore ✓'); showToast('✓ Saved to cloud'); })
+            .catch(e=>console.warn('[Hospi] Push failed:', e));
+        }
+      })
+      .catch(e=>{ console.warn('[Hospi] Firestore get failed:', e); showToast('⚠ Cloud sync failed'); });
+  } else {
+    // No Firebase — save to localStorage only
+    save();
+  }
 }
 
 // ── Start the app immediately on every load ───────────────────────────────────
