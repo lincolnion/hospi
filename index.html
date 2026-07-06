@@ -639,6 +639,7 @@ function showToast(msg){
   _toastTimer=setTimeout(()=>t.classList.remove('show'),2000);
 }
 
+let _fsPending=false;
 function save(){
   // localStorage — synchronous, always reliable
   try{
@@ -652,12 +653,22 @@ function save(){
   }
   // Firestore — DOC_REF set by initFirebase() at startup
   if(!DOC_REF) return;
-  if(_fsSaving) return;
+  if(_fsSaving){ _fsPending=true; return; } // don't drop this update — flush it once the in-flight write finishes
+  _fsWrite();
+}
+function _fsWrite(){
   _fsSaving=true;
+  _fsPending=false;
   DOC_REF.set(JSON.parse(JSON.stringify(S)))
     .then(()=>{ console.log('[Hospi] Firestore save ✓'); showToast('✓ Cloud sync'); })
-    .catch(e=>console.warn('[Hospi] Firestore save failed:',e))
-    .finally(()=>{ _fsSaving=false; });
+    .catch(e=>{
+      console.error('[Hospi] Firestore save FAILED:', e);
+      showToast('⚠ Cloud sync failed — '+(e&&e.code||e.message||'check Firestore rules'));
+    })
+    .finally(()=>{
+      _fsSaving=false;
+      if(_fsPending) _fsWrite(); // a change came in while we were writing — push the latest state now
+    });
 }
 
 function load(){
@@ -830,7 +841,7 @@ function renderGuestsDB(){
   const g=S.guests;
   const q=(S.guestSearch||'').toLowerCase();
   const gf=q?g.filter(x=>((x.firstName||'')+' '+(x.lastName||'')+' '+(x.org||'')+' '+(x.nationality||'')).toLowerCase().includes(q)):g;
-  return `<div class="db-header"><div><div class="db-title">👤 Guest Database</div><div class="db-sub">Biodata registry for all visiting guests</div></div><div style="display:flex;gap:8px;align-items:center"><input value="${esc(S.guestSearch||'')}" oninput="S.guestSearch=this.value;setView('guests')" placeholder="🔍 Search guests..." style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);font-family:'Inter',sans-serif;font-size:12px;outline:none;width:200px"><button class="btn-primary" onclick="openGuestDBModal()">＋ Add Guest</button></div></div>
+  return `<div class="db-header"><div><div class="db-title">👤 Guest Database</div><div class="db-sub">Biodata registry for all visiting guests</div></div><div style="display:flex;gap:8px;align-items:center"><input value="${esc(S.guestSearch||'')}" oninput="S.guestSearch=this.value;render()" placeholder="🔍 Search guests..." style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);font-family:'Inter',sans-serif;font-size:12px;outline:none;width:200px"><button class="btn-primary" onclick="openGuestDBModal()">＋ Add Guest</button></div></div>
   <div class="stat-cards"><div class="stat-card"><div class="stat-num">${g.length}</div><div class="stat-lbl">Registered Guests</div></div><div class="stat-card"><div class="stat-num">${S.trips.length}</div><div class="stat-lbl">Total Trips</div></div><div class="stat-card"><div class="stat-num">${g.filter(x=>x.dietary).length}</div><div class="stat-lbl">Dietary Requirements</div></div><div class="stat-card"><div class="stat-num">${[...new Set(g.map(x=>x.nationality).filter(Boolean))].length}</div><div class="stat-lbl">Nationalities</div></div></div>
   <div class="table-wrap"><table class="db-table"><thead><tr><th>#</th><th>Guest</th><th>Title / Position</th><th>Country</th><th>Dietary / Allergen</th><th>Trips</th><th>Contact</th><th></th></tr></thead><tbody>${gf.length?gf.map((g2,i)=>{const tc=S.trips.filter(t=>t.guestId===g2.id).length;const dietSummary=[g2.allergen,g2.foodPref].filter(Boolean).join(' · ').slice(0,50)||'—';const hasSpouse=g2.spouseName;return`<tr><td style="color:var(--slate2)">${i+1}</td><td style="min-width:160px"><div style="display:flex;align-items:center;gap:8px">${g2.photo?`<img src="${g2.photo}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0">`:''}<div><div class="db-name">${esc(g2.title||'')} ${esc(g2.firstName)} ${esc(g2.lastName)}</div><div class="db-sub2">${hasSpouse?'👫 '+esc(g2.spouseName):esc(g2.email||'')}</div></div></div></td><td style="font-size:11px;color:var(--slate);max-width:220px;line-height:1.4">${esc(g2.org||'—')}</td><td>${g2.nationality?`<span class="tag navy">${esc(g2.nationality)}</span>`:'<span style="color:var(--slate2)">—</span>'}</td><td style="font-size:11px;color:var(--slate);max-width:180px">${esc(dietSummary)}</td><td><span class="stat-badge">${tc} trip${tc!==1?'s':''}</span></td><td style="font-size:11px;color:var(--slate)">${esc(g2.phone||'—')}</td><td><div class="row-acts"><button class="ract" onclick="openGuestDBModal('${g2.id}')">Edit</button><button class="ract del" onclick="confirmDelGDB('${g2.id}')">Del</button></div></td></tr>`;}).join(''):`<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--slate);font-style:italic">${q?"No guests match your search.":"No guests yet. Click \"Add Guest\" to start."}</td></tr>`}</tbody></table></div>`;
 }
@@ -1817,14 +1828,38 @@ function startApp(){
           console.log('[Hospi] No Firestore data yet — pushing local data up');
           DOC_REF.set(JSON.parse(JSON.stringify(S)))
             .then(()=>{ console.log('[Hospi] Pushed to Firestore ✓'); showToast('✓ Saved to cloud'); })
-            .catch(e=>console.warn('[Hospi] Push failed:', e));
+            .catch(e=>{
+              console.error('[Hospi] Initial push FAILED:', e);
+              showToast('⚠ Cloud sync failed — '+(e&&e.code||e.message||'check Firestore rules'));
+            });
         }
+        _attachLiveSync();
       })
-      .catch(e=>{ console.warn('[Hospi] Firestore get failed:', e); showToast('⚠ Cloud sync failed'); });
+      .catch(e=>{
+        console.error('[Hospi] Firestore get FAILED:', e);
+        showToast('⚠ Cloud sync failed — '+(e&&e.code||e.message||'check Firestore rules'));
+      });
   } else {
     // No Firebase — save to localStorage only
     save();
   }
+}
+
+// ── Live sync — picks up changes made on OTHER devices without needing a refresh ──
+function _attachLiveSync(){
+  if(!DOC_REF || !DOC_REF.onSnapshot) return;
+  DOC_REF.onSnapshot(snap=>{
+    if(snap.metadata.hasPendingWrites) return;      // this is the echo of our OWN write — ignore
+    if(document.querySelector('.mo.open')) return;  // don't yank data out from under an open edit form
+    if(!snap.exists) return;
+    console.log('[Hospi] Live update received from another device');
+    Object.assign(S, snap.data());
+    try{ localStorage.setItem('hospi_v3', JSON.stringify(S)); }catch(e){}
+    render();
+    showToast('✓ Updated from another device');
+  }, e=>{
+    console.error('[Hospi] Live sync listener error:', e);
+  });
 }
 
 // ── Start the app immediately on every load ───────────────────────────────────
