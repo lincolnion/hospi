@@ -171,6 +171,28 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 .ibtn.del:hover{background:#FEE2E2;color:#991B1B}
 .add-btn{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:var(--slate);padding:5px 8px;border-radius:6px;border:1px dashed var(--border);background:transparent;cursor:pointer;transition:all .15s;width:100%;margin-top:3px;font-family:'Inter',sans-serif}
 .add-btn:hover{border-color:var(--coral);color:var(--coral);background:rgba(232,104,69,.04)}
+.timeline{position:relative;margin-top:12px;padding-left:2px}
+.timeline::before{content:'';position:absolute;left:16px;top:2px;bottom:2px;width:2px;background:var(--border)}
+.tl-row{display:flex;align-items:flex-start;gap:10px;position:relative;margin-bottom:10px}
+.tl-row:last-child{margin-bottom:0}
+.tl-node{width:34px;flex-shrink:0;display:flex;justify-content:center;position:relative;z-index:1}
+.tl-dot{width:34px;height:34px;border-radius:50%;background:#fff;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 0 0 3px var(--bg)}
+.tl-dot.event{border-color:var(--navy)}
+.tl-dot.meal{border-color:var(--coral)}
+.tl-dot.activity{border-color:var(--amber)}
+.tl-time{width:40px;flex-shrink:0;font-size:11px;font-weight:700;color:var(--navy);padding-top:8px;text-align:left}
+.tl-content{flex:1;display:flex;align-items:flex-start;gap:8px;background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-top:2px;transition:border-color .15s}
+.tl-content:hover{border-color:var(--slate2)}
+.tl-body{flex:1}
+.tl-title{font-size:12.5px;font-weight:600;color:var(--navy)}
+.tl-loc{font-size:10.5px;color:var(--slate);margin-top:2px}
+.tl-note{font-size:10.5px;color:var(--slate2);margin-top:2px;font-style:italic}
+.tl-people{font-size:10px;color:var(--slate);margin-top:3px}
+.tl-content .iacts{opacity:0}
+.tl-content:hover .iacts{opacity:1}
+.tl-empty{font-size:11px;color:var(--slate2);font-style:italic;padding:10px 0 10px 44px}
+.tl-addrow{display:flex;gap:7px;margin-top:12px}
+.tl-addrow .add-btn{width:auto;flex:1;margin-top:0;justify-content:center}
 .empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 40px;color:var(--slate)}
 .e-icon{font-size:44px;margin-bottom:14px;opacity:.4}
 .e-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--navy);margin-bottom:7px}
@@ -813,12 +835,16 @@ function renderGC(t){
 function renderDayCard(t,date,i){
   const day=t.days[date]||{};
   const{day:d,month:m,dow:w}=fdy(date);
-  const tot=(day.events||[]).length+(day.meals||[]).length+(day.activities||[]).length;
-  const secH=(items,key,icon,lbl)=>{
-    const rows=(items||[]).map((item,idx)=>`<div class="irow"><div class="itime">${item.time||'—'}</div><div class="ibody"><div class="ititle">${esc(item.title)}</div>${item.location?`<div class="iloc">📍 ${esc(item.location)}</div>`:''} ${item.notes?`<div class="inote">${esc(item.notes)}</div>`:''} ${item.host?`<div style="font-size:10px;color:var(--slate);margin-top:2px">🧑‍💼 ${esc(item.host)}${item.driver?' · 🚗 '+esc(item.driver):''}</div>`:(item.driver?`<div style="font-size:10px;color:var(--slate);margin-top:2px">🚗 ${esc(item.driver)}</div>`:'')}</div><span class="s-badge ${item.status||'tbd'}">${item.status||'tbd'}</span><div class="iacts"><button class="ibtn" onclick="openEditItem('${date}','${key}',${idx})">✏️</button><button class="ibtn del" onclick="doDelItem('${date}','${key}',${idx})">🗑</button></div></div>`).join('');
-    return `<div class="sg"><div class="sg-lbl">${icon} ${lbl}</div>${rows}<button class="add-btn" onclick="openAddItem('${date}','${key}')">＋ Add ${lbl}</button></div>`;
-  };
-  return `<div class="day-card"><div class="day-ch" id="dh_${date}" onclick="togDay('${date}')"><div class="stamp"><div class="stamp-n">${i+1}</div><div class="stamp-d">${d}</div><div class="stamp-m">${m}</div><div class="stamp-w">${w}</div></div><div class="day-hinfo"><div class="day-htitle">Day ${i+1}</div><div class="day-chips"><span class="dchip host">🧑‍💼 ${esc(day.host||'No host')}</span><span class="dchip driver">🚗 ${esc(day.driver||'No driver')}</span></div><div class="day-cnt">${tot} item${tot!==1?'s':''}</div></div><div class="day-tog" id="dt_${date}">▶</div></div><div class="day-body collapsed" id="db_${date}"><div class="hd-row"><div class="hd-card" onclick="openHD('${date}','host')"><span>🧑‍💼</span><div><div class="hd-l">Host</div><div class="hd-n${!day.host?' empty':''}">${esc(day.host||'Assign host…')}</div>${day.hostContact?`<div class="hd-c">${esc(day.hostContact)}</div>`:''}</div><span style="color:var(--slate2);margin-left:auto">›</span></div><div class="hd-card" onclick="openHD('${date}','driver')"><span>🚗</span><div><div class="hd-l">Driver</div><div class="hd-n${!day.driver?' empty':''}">${esc(day.driver||'Assign driver…')}</div>${day.driverContact?`<div class="hd-c">${esc(day.driverContact)}</div>`:''}</div><span style="color:var(--slate2);margin-left:auto">›</span></div></div>${secH(day.events,'events','📅','Event')}${secH(day.meals,'meals','🍽️','Meal')}${secH(day.activities,'activities','🎯','Activity')}</div></div>`;
+  const merged=[];
+  (day.events||[]).forEach((it,idx)=>merged.push({...it,_key:'events',_idx:idx,_icon:'📅',_type:'event'}));
+  (day.meals||[]).forEach((it,idx)=>merged.push({...it,_key:'meals',_idx:idx,_icon:'🍽️',_type:'meal'}));
+  (day.activities||[]).forEach((it,idx)=>merged.push({...it,_key:'activities',_idx:idx,_icon:'🎯',_type:'activity'}));
+  merged.sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
+  const tot=merged.length;
+  const tlRows=merged.map(item=>`<div class="tl-row"><div class="tl-node"><div class="tl-dot ${item._type}">${item._icon}</div></div><div class="tl-time">${item.time||'—'}</div><div class="tl-content"><div class="tl-body"><div class="tl-title">${esc(item.title)}</div>${item.location?`<div class="tl-loc">📍 ${esc(item.location)}</div>`:''}${item.notes?`<div class="tl-note">${esc(item.notes)}</div>`:''}${item.host?`<div class="tl-people">🧑‍💼 ${esc(item.host)}${item.driver?' · 🚗 '+esc(item.driver):''}</div>`:(item.driver?`<div class="tl-people">🚗 ${esc(item.driver)}</div>`:'')}</div><span class="s-badge ${item.status||'tbd'}">${item.status||'tbd'}</span><div class="iacts"><button class="ibtn" onclick="openEditItem('${date}','${item._key}',${item._idx})">✏️</button><button class="ibtn del" onclick="doDelItem('${date}','${item._key}',${item._idx})">🗑</button></div></div></div>`).join('');
+  const tlEmpty=`<div class="tl-empty">No items yet for this day</div>`;
+  const addRow=`<div class="tl-addrow"><button class="add-btn" onclick="openAddItem('${date}','events')">＋ Event</button><button class="add-btn" onclick="openAddItem('${date}','meals')">＋ Meal</button><button class="add-btn" onclick="openAddItem('${date}','activities')">＋ Activity</button></div>`;
+  return `<div class="day-card"><div class="day-ch" id="dh_${date}" onclick="togDay('${date}')"><div class="stamp"><div class="stamp-n">${i+1}</div><div class="stamp-d">${d}</div><div class="stamp-m">${m}</div><div class="stamp-w">${w}</div></div><div class="day-hinfo"><div class="day-htitle">Day ${i+1}</div><div class="day-chips"><span class="dchip host">🧑‍💼 ${esc(day.host||'No host')}</span><span class="dchip driver">🚗 ${esc(day.driver||'No driver')}</span></div><div class="day-cnt">${tot} item${tot!==1?'s':''}</div></div><div class="day-tog" id="dt_${date}">▶</div></div><div class="day-body collapsed" id="db_${date}"><div class="hd-row"><div class="hd-card" onclick="openHD('${date}','host')"><span>🧑‍💼</span><div><div class="hd-l">Host</div><div class="hd-n${!day.host?' empty':''}">${esc(day.host||'Assign host…')}</div>${day.hostContact?`<div class="hd-c">${esc(day.hostContact)}</div>`:''}</div><span style="color:var(--slate2);margin-left:auto">›</span></div><div class="hd-card" onclick="openHD('${date}','driver')"><span>🚗</span><div><div class="hd-l">Driver</div><div class="hd-n${!day.driver?' empty':''}">${esc(day.driver||'Assign driver…')}</div>${day.driverContact?`<div class="hd-c">${esc(day.driverContact)}</div>`:''}</div><span style="color:var(--slate2);margin-left:auto">›</span></div></div><div class="timeline">${tot?tlRows:tlEmpty}</div>${addRow}</div></div>`;
 }
 function togDay(date,fo=false){
   const b=document.getElementById('db_'+date),t=document.getElementById('dt_'+date);if(!b)return;
