@@ -290,6 +290,8 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 @media(max-width:680px){.sidebar{width:200px;min-width:200px}.gc-panels{grid-template-columns:1fr}.gc-panel:not(:last-child){border-right:none;border-bottom:1px solid rgba(255,255,255,.08)}.stat-cards{grid-template-columns:1fr 1fr}.fg{grid-template-columns:1fr}.fld.s2{grid-column:span 1}.fg.c3{grid-template-columns:1fr 1fr}}
 @media(max-width:480px){.sidebar{display:none}}
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div id="loginScreen" style="position:fixed;inset:0;background:#1A2E4A;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:14px">
@@ -313,12 +315,12 @@ const APP_PASSWORD = "HOSPI2026";
 // Firebase config — fill in your values to enable cloud sync across devices.
 // Leave as-is to use local storage only (works perfectly without Firebase).
 const FIREBASE_CONFIG = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId:             "YOUR_APP_ID"
+  apiKey:            "AIzaSyCR3HYsT0f1_SC4HHVx-TSsttGnsWvtqh8",
+  authDomain:        "hospi-linc.firebaseapp.com",
+  projectId:         "hospi-linc",
+  storageBucket:     "hospi-linc.firebasestorage.app",
+  messagingSenderId: "982567511777",
+  appId:             "1:982567511777:web:9e0148b64c19dfd2f8f9a0"
 };
 
 // ── Login ───────────────────────────────────────────────────────────────────
@@ -644,7 +646,7 @@ function save(){
   }
   // Firestore — only if properly configured and loaded
   if(typeof DOC_REF !== 'undefined' && DOC_REF &&
-     typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY'){
+     typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey.startsWith('AIza')){
     if(_fsSaving) return;
     _fsSaving = true;
     DOC_REF.set(JSON.parse(JSON.stringify(S)))
