@@ -87,36 +87,36 @@ html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:
 .gc-av{width:48px;height:48px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;font-size:16px;color:#fff;border:2px solid rgba(255,255,255,.2);position:relative;z-index:1}
 .gc-meta{flex:1;position:relative;z-index:1}
 .gc-name{font-family:'Playfair Display',serif;font-weight:700;font-size:20px;color:#fff;line-height:1.1}
-.gc-role{font-size:11px;color:rgba(255,255,255,.5);margin-top:3px;font-style:italic}
+.gc-role{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px;font-style:italic}
 .gc-pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
 .gpill{font-size:10px;font-weight:500;padding:2px 8px;border-radius:16px}
 .gpill.dietary{background:rgba(45,125,90,.35);color:#7FD9A8}
 .gpill.nat{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)}
 .gpill.spouse{background:rgba(201,125,26,.35);color:#F4C56A}
 .gpill.comp{background:rgba(124,58,237,.35);color:#C4B5FD}
-.gpill.nights{background:rgba(255,255,255,.08);color:rgba(255,255,255,.45)}
+.gpill.nights{background:rgba(255,255,255,.08);color:rgba(255,255,255,.65)}
 .gc-edit{position:absolute;top:14px;right:18px;z-index:2;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:4px 10px;font-size:11px;color:rgba(255,255,255,.65);cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:all .15s}
 .gc-edit:hover{background:rgba(255,255,255,.2);color:#fff}
 .gc-panels{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid rgba(255,255,255,.08)}
 .gc-panel{padding:12px 18px;border-right:1px solid rgba(255,255,255,.08)}
 .gc-panel:last-child{border-right:none}
-.gc-plabel{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:8px}
+.gc-plabel{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:8px}
 .f-row{display:flex;align-items:flex-start;gap:7px;margin-bottom:7px}
 .f-row:last-child{margin-bottom:0}
 .f-dir{font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;flex-shrink:0;margin-top:1px}
 .f-dir.arr{background:rgba(45,125,90,.4);color:#7FD9A8}
 .f-dir.dep{background:rgba(232,104,69,.4);color:#F4A07A}
 .f-num{font-size:12px;font-weight:700;color:#fff}
-.f-detail{font-size:10px;color:rgba(255,255,255,.45);margin-top:1px}
-.f-time{font-size:11px;font-weight:600;color:rgba(255,255,255,.75);text-align:right;flex-shrink:0;padding-top:1px}
+.f-detail{font-size:11px;color:rgba(255,255,255,.65);margin-top:1px}
+.f-time{font-size:11px;font-weight:600;color:rgba(255,255,255,.85);text-align:right;flex-shrink:0;padding-top:1px}
 .h-name{font-size:13px;font-weight:700;color:#fff}
-.h-room{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px}
+.h-room{font-size:11px;color:rgba(255,255,255,.65);margin-top:2px}
 .h-dates{margin-top:7px}
 .h-dr{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.06)}
 .h-dr:last-child{border-bottom:none}
-.h-dl{font-size:9px;color:rgba(255,255,255,.35)}
-.h-dv{font-size:10px;font-weight:600;color:rgba(255,255,255,.7)}
-.gc-empty{font-size:11px;color:rgba(255,255,255,.22);font-style:italic}
+.h-dl{font-size:10px;color:rgba(255,255,255,.55)}
+.h-dv{font-size:11px;font-weight:600;color:rgba(255,255,255,.9)}
+.gc-empty{font-size:11px;color:rgba(255,255,255,.35);font-style:italic}
 .gc-companions{border-top:1px solid rgba(255,255,255,.08);padding:10px 18px;display:flex;gap:16px;flex-wrap:wrap}
 .comp-item{display:flex;align-items:center;gap:7px}
 .comp-av{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:rgba(255,255,255,.65)}
@@ -404,7 +404,7 @@ if (sessionStorage.getItem('hospi_auth') === '1') {
       <select id="f_guestId" onchange="onGuestSelect()"><option value="">— Type new name or select existing —</option></select>
     </div></div>
     <div class="fg">
-      <div class="fld"><label>Title</label><select id="f_title"><option>Prof</option><option>Assoc Prof</option><option>Dr</option><option>Mr</option><option>Mrs</option><option>Ms</option></select></div>
+      <div class="fld"><label>Title</label><select id="f_title" onchange="toggleTitleCustom(this)"><option>Prof</option><option>Assoc Prof</option><option>Dr</option><option>Mr</option><option>Mrs</option><option>Ms</option><option value="__custom__">+ Custom…</option></select><input id="f_title_custom" placeholder="e.g. Rev, Bishop, Apostle" style="display:none;margin-top:4px"/></div>
       <div class="fld"><label>Guest Name *</label><input id="f_guestName" placeholder="e.g. Douglas Chen"/></div>
       <div class="fld s2"><label>Purpose / Role</label><input id="f_purpose" placeholder="e.g. Teaching Visit · Workshop Speaker"/></div>
       <div class="fld s2"><label>Institution</label><input id="f_org" placeholder="e.g. MIT Department of Biology"/></div>
@@ -510,7 +510,7 @@ if (sessionStorage.getItem('hospi_auth') === '1') {
     </div>
     <div id="spouseFields" style="display:none;margin-top:8px">
       <div class="fg c3">
-        <div class="fld"><label>Title</label><select id="gc_spTitle"><option>Mrs</option><option>Mr</option><option>Ms</option><option>Dr</option><option>Prof</option></select></div>
+        <div class="fld"><label>Title</label><select id="gc_spTitle" onchange="toggleTitleCustom(this)"><option>Mrs</option><option>Mr</option><option>Ms</option><option>Dr</option><option>Prof</option><option value="__custom__">+ Custom…</option></select><input id="gc_spTitle_custom" placeholder="e.g. Rev, Bishop, Apostle" style="display:none;margin-top:4px"/></div>
         <div class="fld"><label>Name *</label><input id="gc_spName" placeholder="Jane Chen"/></div>
         <div class="fld"><label>Dietary</label><select id="gc_spDiet"><option value="">None</option><option>Halal</option><option>Vegetarian</option><option>Vegan</option><option>Kosher</option><option>Gluten-Free</option><option>Other</option></select></div>
         <div class="fld"><label>Passport No.</label><input id="gc_spPP" placeholder="B98765432"/></div>
@@ -585,7 +585,7 @@ if (sessionStorage.getItem('hospi_auth') === '1') {
       </div>
       <!-- Name row -->
       <div style="display:grid;grid-template-columns:100px 1fr 1fr;gap:9px">
-        <div class="fld"><label>Title</label><select id="gdb_title"><option>Prof</option><option>Assoc Prof</option><option>Dr</option><option>Mr</option><option>Mrs</option><option>Ms</option><option>—</option></select></div>
+        <div class="fld"><label>Title</label><select id="gdb_title" onchange="toggleTitleCustom(this)"><option>Prof</option><option>Assoc Prof</option><option>Dr</option><option>Mr</option><option>Mrs</option><option>Ms</option><option>—</option><option value="__custom__">+ Custom…</option></select><input id="gdb_title_custom" placeholder="e.g. Rev, Bishop, Apostle" style="display:none;margin-top:4px"/></div>
         <div class="fld"><label>First Name *</label><input id="gdb_first" placeholder="Douglas"/></div>
         <div class="fld"><label>Last Name *</label><input id="gdb_last" placeholder="Petersen"/></div>
       </div>
@@ -723,8 +723,9 @@ function drange(s,e){const ds=[];let d=new Date(s+'T00:00:00'),en=new Date(e+'T0
 function tSt(t){const td=localDate();if(t.endDate<td)return'past';if(t.startDate<=td)return'active-now';return'upcoming';}
 function gAct(){return S.trips.find(t=>t.id===S.activeTripId);}
 function ensureDays(t){if(!t.days)t.days={};drange(t.startDate,t.endDate).forEach(d=>{if(!t.days[d])t.days[d]={hostId:'',host:'',hostContact:'',driverId:'',driver:'',driverContact:'',events:[],meals:[],activities:[]};});}
-function gv(id){const e=document.getElementById(id);return e?e.value:'';}
-function sv(id,v){const e=document.getElementById(id);if(e)e.value=v||'';}
+function gv(id){const e=document.getElementById(id);if(!e)return'';if(e.tagName==='SELECT'){const cust=document.getElementById(id+'_custom');if(cust&&e.value==='__custom__')return cust.value.trim();}return e.value;}
+function sv(id,v){const e=document.getElementById(id);if(!e)return;if(e.tagName==='SELECT'){const cust=document.getElementById(id+'_custom');if(cust){const opts=[...e.options].map(o=>o.value);if(v&&!opts.includes(v)){e.value='__custom__';cust.style.display='inline-block';cust.value=v;}else{e.value=v||'';cust.style.display='none';cust.value='';}return;}}e.value=v||'';}
+function toggleTitleCustom(sel){const cust=document.getElementById(sel.id+'_custom');if(!cust)return;if(sel.value==='__custom__'){cust.style.display='inline-block';cust.focus();}else{cust.style.display='none';}}
 function mkEl(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!==undefined)e.innerHTML=html;return e;}
 
 // ── STATS ────────────────────────────────────────────────────────────────────
@@ -828,7 +829,7 @@ function renderGC(t){
   if(t.hasSpouse&&t.spouseName)allC.push({name:(t.spouseTitle||'')+' '+t.spouseName,role:'Spouse'+(t.spouseDietary?' · '+t.spouseDietary:'')});
   (t.companions||[]).filter(c2=>c2.name).forEach(c2=>allC.push({name:c2.name,role:[c2.role,c2.dietary].filter(Boolean).join(' · ')}));
   const compH=allC.length?allC.map(c2=>`<div class="comp-item"><div class="comp-av">${ini(c2.name)}</div><div><div class="comp-name">${esc(c2.name)}</div><div class="comp-sub">${esc(c2.role)}</div></div></div>`).join(''):'<span style="font-size:11px;color:rgba(255,255,255,.2);font-style:italic">Travelling alone — no companions</span>';
-  return `<div class="guest-card"><div class="gc-head"><div class="gc-bg"></div>${gPhoto?`<img src="${gPhoto}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.2);position:relative;z-index:1;flex-shrink:0">`:'<div class="gc-av" style="background:'+c+'">'+ ini(t.guestName)+'</div>'}<div class="gc-meta"><div class="gc-name">${esc((t.titleStr||'')+' '+t.guestName)}</div><div class="gc-role">${esc([t.purpose,t.org].filter(Boolean).join(' · '))}</div><div class="gc-pills">${pills.join('')||'<span style="font-size:11px;color:rgba(255,255,255,.25);font-style:italic">Click Edit Card to add details</span>'}</div></div><button class="gc-edit" onclick="openGC()">✏️ Edit Card</button></div><div class="gc-panels"><div class="gc-panel"><div class="gc-plabel">✈️ Arrival</div>${arrH}</div><div class="gc-panel"><div class="gc-plabel">🛫 Departure</div>${depH}</div><div class="gc-panel"><div class="gc-plabel">🏨 Accommodation</div>${htlH}</div></div><div class="gc-companions">${compH}</div></div>`;
+  return `<div class="guest-card"><div class="gc-head"><div class="gc-bg"></div>${gPhoto?`<img src="${gPhoto}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.2);position:relative;z-index:1;flex-shrink:0">`:'<div class="gc-av" style="background:'+c+'">'+ ini(t.guestName)+'</div>'}<div class="gc-meta"><div class="gc-name">${esc((t.titleStr||'')+' '+t.guestName)}</div><div class="gc-role">${esc([t.purpose,t.org].filter(Boolean).join(' · '))}</div><div class="gc-pills">${pills.join('')||'<span style="font-size:11px;color:rgba(255,255,255,.4);font-style:italic">Click Edit Card to add details</span>'}</div></div><button class="gc-edit" onclick="openGC()">✏️ Edit Card</button></div><div class="gc-panels"><div class="gc-panel"><div class="gc-plabel">✈️ Arrival</div>${arrH}</div><div class="gc-panel"><div class="gc-plabel">🛫 Departure</div>${depH}</div><div class="gc-panel"><div class="gc-plabel">🏨 Accommodation</div>${htlH}</div></div><div class="gc-companions">${compH}</div></div>`;
 }
 
 // ── DAY CARDS ────────────────────────────────────────────────────────────────
@@ -1254,6 +1255,8 @@ function renderEditGuestPage(va){
   const isEdit=!!g;
   const eq=(k,d)=>esc(g?.[k]||d||'');
   const sel=(k,opts,def)=>opts.map(o=>'<option'+(((g?.[k]||def)===o)?' selected':'')+'>'+o+'</option>').join('');
+  const titleOpts=['Prof','Assoc Prof','Dr','Mr','Mrs','Ms','—'];
+  const isCustomTitle=!!(g?.title&&!titleOpts.includes(g.title));
   const fullName=g?((g.title&&g.title!=='—'?g.title+' ':'')+g.firstName+' '+g.lastName).trim():'New Guest';
   const hasSp=!!(g?.spouseName);
 
@@ -1286,7 +1289,7 @@ function renderEditGuestPage(va){
         <button id="gdb_photoRemove" onclick="removeGuestPhoto()" style="display:${g?.photo?'block':'none'};font-size:10px;color:var(--coral);border:none;background:none;cursor:pointer;padding:0">✕ Remove</button>
       </div>
       <div style="display:grid;grid-template-columns:110px 1fr 1fr;gap:10px">
-        <div class="fld"><label>Title</label><select id="gdb_title" oninput="refreshGDBDiet()">${sel('title',['Prof','Assoc Prof','Dr','Mr','Mrs','Ms','—'],'Prof')}</select></div>
+        <div class="fld"><label>Title</label><select id="gdb_title" oninput="refreshGDBDiet()" onchange="toggleTitleCustom(this);refreshGDBDiet()">${sel('title',titleOpts,'Prof')}<option value="__custom__"${isCustomTitle?' selected':''}>+ Custom…</option></select><input id="gdb_title_custom" placeholder="e.g. Rev, Bishop, Apostle" style="display:${isCustomTitle?'inline-block':'none'};margin-top:4px" value="${isCustomTitle?esc(g.title):''}"/></div>
         <div class="fld"><label>First Name *</label><input id="gdb_first" value="${eq('firstName')}" placeholder="Douglas" oninput="refreshGDBDiet()"/></div>
         <div class="fld"><label>Last Name *</label><input id="gdb_last" value="${eq('lastName')}" placeholder="Petersen" oninput="refreshGDBDiet()"/></div>
       </div>
